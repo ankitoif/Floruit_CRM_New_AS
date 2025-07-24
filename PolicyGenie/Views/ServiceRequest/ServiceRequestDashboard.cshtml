@@ -1,0 +1,249 @@
+﻿@using OIF.Cams.Model.ViewModels
+@model ServiceRequestDashboardViewModel
+
+
+<div class="container-fluid mt-3 px-2 px-md-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-2">Task Summary Dashboard</h4>
+
+        @{
+            var activeRole = User.FindFirst("ActiveRole")?.Value;
+        }
+
+        @if (activeRole == "Agent")
+        {
+            <a asp-action="CreateLead" asp-controller="Lead" class="btn btn-outline-primary">+ Create Lead</a>
+        }
+    </div>
+
+    <!-- Dashboard Summary -->
+    <div class="row mb-4">
+        @if (activeRole == "Agent")
+        {
+            <div class="col-md-2">
+                <a asp-action="ServiceRequestDashboard" asp-route-dashboardType="TotalTask" class="text-decoration-none">
+                    <div class="card text-center bg-light shadow-sm" style="border: 1px solid rgba(13, 110, 253, 0.3);">
+                        <div class="card-body">
+                            <h6 class="card-title text-dark">Total Task</h6>
+                            <h4 class="text-primary fw-bold">@Model.TotalCount</h4>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        }
+        else
+        {
+            var orderedStatusList = new List<string>
+                {
+                "Submitted",
+                "Awaiting Documents",
+                "Pending with client",
+                "Accessing with Bank",
+                "Account opened",
+                "Account declined"
+                };
+
+            var orderedCounts = Model.StatusCounts
+            .OrderBy(x => orderedStatusList.IndexOf(x.Status))
+            .ToList();
+
+            @foreach (var item in orderedCounts)
+            {
+                <div class="col-md-2">
+                    <a asp-action="ServiceRequestDashboard" asp-route-dashboardType="@item.Status" class="text-decoration-none">
+                        <div class="card text-center bg-light shadow-sm" style="border: 1px solid rgba(13, 110, 253, 0.3);">
+                            <div class="card-body">
+                                <h6 class="card-title text-dark">@item.Status</h6>
+                                <h4 class="text-primary fw-bold">@item.Count</h4>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+
+
+    </div>
+
+    <!-- Section Header and Download Button -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 fw-semibold">Lead Created Log</h5>
+
+        @if (Model.Leads != null && Model.Leads.Any())
+        {
+            <a asp-action="DownloadServiceRequestReport"
+               asp-route-dashboardType="@Model.DashboardType"
+               class="btn btn-sm btn-success">
+                <i class="fa fa-download me-1"></i> Download Report
+            </a>
+        }
+        else
+        {
+            <!-- Disabled link with tooltip -->
+            <span title="No records available to download">
+                <a class="btn btn-sm btn-success disabled" aria-disabled="true" tabindex="-1">
+                    <i class="fa fa-download me-1"></i> Download Report
+                </a>
+            </span>
+        }
+    </div>
+
+
+    <!-- Data Table -->
+    <table id="serviceTable" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th style="display:none;">Lead ID</th>
+                <th>Product Reference Number</th>
+                <th>Company Name</th>
+                <th>Lead Source</th>
+                <th>Lead Type</th>
+                <th>Lead Status</th>
+                <th>Address</th>
+                <th>Created By</th>
+                <th>Lead CreatedDateTime</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Leads)
+            {
+                <tr>
+                    <td style="display:none;">@item.LeadId</td>
+                    @* <td>@item.ProductRefNo</td> *@
+                    <td>
+                        <a href="javascript:void(0);" onclick="loadLeadDetails('@item.ProductRefNo')">
+
+                            @item.ProductRefNo
+                        </a>@* @item.ProductRefNo *@</td>
+                    <td>@item.CompanyName</td>
+                    <td>@item.LeadSource</td>
+                    <td>@item.LeadType</td>
+                    <td>@item.LeadStatus</td>
+                    <td>@item.Address</td>
+                    <td>@item.CreatedBy</td>
+                    <td>@item.LeadCreatedDateTime</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="leadDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content p-3">
+            <div class="modal-header">
+                <h5 class="modal-title">Lead Details - <span id="leadIdTitle"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Content will be loaded here dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+                @if (activeRole != "Admin")
+
+                {
+                    <button class="btn btn-primary" onclick="submitSubjectMatter()">Submit</button>
+
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link href="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.css" rel="stylesheet">
+    <script src="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#serviceTable').DataTable({
+                "autoWidth": false,
+                "responsive": true,
+                "pagingType": "full_numbers",
+                "pageLength": 10,
+                "lengthMenu": [2, 5, 10, 25, 50, 75, 100],
+                "language": {
+                    "paginate": {
+                        "first": "<<",
+                        "last": ">>",
+                        "next": ">",
+                        "previous": "<"
+                    }
+                }
+            });
+        });
+
+
+
+
+        async function loadLeadDetails(productRefNo) {
+            try {
+                // Show loading indicator if needed
+                $('#leadDetailModal .modal-body').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p>Loading details...</p></div>');
+
+                // Load the partial view
+                const response = await fetch(`/Lead/GetLeadDetails?productRefNo=${encodeURIComponent(productRefNo)}`);
+                const html = await response.text();
+
+                // Update the modal content
+                $('#leadDetailModal .modal-body').html(html);
+
+                // Set the title
+                document.getElementById("leadIdTitle").innerText = productRefNo;
+
+                // Show the modal
+                const modal = new bootstrap.Modal(document.getElementById('leadDetailModal'));
+                modal.show();
+            } catch (error) {
+                console.error('Error loading lead details:', error);
+                $('#leadDetailModal .modal-body').html('<div class="alert alert-danger">Error loading lead details. Please try again.</div>');
+            }
+        }
+
+          function submitSubjectMatter() {
+            const form = document.getElementById('subjectMatterForm');
+            const formData = new FormData(form);
+
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+
+            jsonData.ProductRefNo = document.getElementById('leadIdTitle').innerText;
+
+            fetch('/Lead/UpdateLeadDetails', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                  if (data.success) {
+             alert('Saved successfully!');
+             location.reload(); // Reloads the current page
+         } else {
+             alert('Error: ' + (data.message || 'Failed to save.'));
+         }
+            })
+            .catch(() => {
+                alert('An error occurred while saving.');
+            });
+        }
+
+
+
+    </script>
+}

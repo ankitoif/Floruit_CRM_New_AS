@@ -1,0 +1,69 @@
+﻿@if (TempData["Success"] is string msg)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            AlertMessage('G//@msg', 5000, 'suc');
+        });
+    </script>
+}
+@if (TempData["Error"] is string err)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            AlertMessage('R//@err', 3000, 'fail');
+        });
+    </script>
+}
+
+
+@* @if (TempData["Success"] is string msg)
+{
+    <div class="position-fixed top-0 start-50 translate-middle-x w-100 text-center" style="z-index: 1055;">
+        <div class="alert alert-success alert-dismissible fade show rounded-0 m-0" role="alert">
+            <div class="d-inline-flex align-items-center">
+                <i class="bi bi-check-circle-fill me-2 fs-5"></i>
+                <span>@msg</span>
+            </div>
+            <button type="button" class="btn-close ms-3" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+}
+
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.alert.alert-success, .alert.alert-info').forEach(alert => {
+            setTimeout(() => {
+                const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+                bsAlert.close();
+            }, 3000);
+        });
+    });
+
+</script> *@
+
+
+ @* <script>
+ function AlertMessage(msg, timeout, eventType)
+{
+    //debugger
+    var arr = msg.split('//');
+    $('#divTransactionResult').html('');
+    if (eventType == 'suc' || arr[0] == 'G')
+        $('#divTransactionResult').append('<div class="alert alert-success" style="z-index:3000;position:fixed;width:100%;bottom:0%; right:-70px; "><a class="close" data-dismiss="alert">×</a><strong>Success!</strong><p style="font-weight:bold">' + arr[1] + '</p></div>');
+    else if (eventType == 'fail' || arr[0] == 'R')
+        $('#divTransactionResult').append('<div class="alert alert-danger" style="z-index:3000;position:fixed;width:100%;bottom:0%; right:-70px;"><a class="close" data-dismiss="alert">×</a><strong>Error!</strong><p style="font-weight:bold">' + arr[1] + '</p></div>');
+    else if (eventType == 'warn' || arr[0] == 'W')
+        $('#divTransactionResult').append('<div class="alert alert-warning" style="z-index:3000;position:fixed;width:100%;bottom:0%; right:-70px;"><a class="close" data-dismiss="alert">×</a><strong>Warning!</strong><p style="font-weight:bold">' + arr[1] + '</p></div>');
+    alertTimeout(timeout);
+
+}
+
+function alertTimeout(wait)
+{
+    //debugger
+    setTimeout(function ()
+    {
+        $('#divTransactionResult').children('.alert:first-child').remove()
+    }, wait);
+}
+</script> *@

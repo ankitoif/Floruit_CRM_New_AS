@@ -1,0 +1,571 @@
+﻿@using OIF.Cams.Model.LeadVM
+@model LeadViewModel
+
+
+<div class="container my-5">
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-primary text-white rounded-top-4">
+            <h4 class="mb-0 py-2">Create Lead</h4>
+        </div>
+
+        <div class="card-body">
+            @using (Html.BeginForm("CreateLead", "Lead", FormMethod.Post, new { enctype = "multipart/form-data", id = "leadForm" }))
+            {
+                <div class="row g-3">
+
+                    <!-- Product -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Product <span class="text-danger">*</span></label>
+                        <select name="Product" class="form-select" required>
+                            <option value="">Select</option>
+                            <option>Account</option>
+                            <option>Asset</option>
+                        </select>
+                    </div>
+
+                    <!-- Upload Trade License -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Trade License <span class="text-danger">*</span></label>
+                        <input type="file" name="TradeLicense" class="form-control" required>
+                        <a id="tradeLicenseDownload" href="#" target="_blank" class="btn btn-sm btn-outline-primary d-none mb-2">
+                            <i class="bi bi-download"></i> Download Trade License
+                        </a>
+                    </div>
+
+                    <!-- Trade License Number -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Trade License Number <span class="text-danger">*</span></label>
+                        <input type="text" name="TradeLicenseNumber" id="tradeLicenseNumber" class="form-control" required>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <label>Upload VAT Certificate @* <span class="text-danger">*</span> *@</label>
+                        <input type="file" name="VATCertificate" class="form-control">
+                        <a id="vatCertificateDownload" href="#" target="_blank" class="btn btn-sm btn-outline-success d-none mb-2">
+                            <i class="bi bi-download"></i> Download VAT Certificate
+                        </a>
+                    </div>
+
+                    <!-- Company Name -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Name of the Company <span class="text-danger">*</span></label>
+                        <input type="text" name="CompanyName" class="form-control" required>
+                    </div>
+
+                    <!-- Trade License Expiry -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Trade License Expiry Date <span class="text-danger">*</span></label>
+                        <input type="date" name="TradeLicenseExpiry" class="form-control" required>
+                    </div>
+
+                    <!-- VAT TRN -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">VAT TRN Number</label>
+                        <input type="text" name="VAT" class="form-control">
+                    </div>
+
+                    <!-- Address -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Address <span class="text-danger">*</span></label>
+                        <input type="text" name="Address" class="form-control" required>
+                    </div>
+
+                    <!-- Contact Persons -->
+                    <div class="col-12">
+                        <label class="form-label">Contact Person(s) <span class="text-danger">*</span></label>
+                        <div id="contactPersonContainer">
+                            <div class="row g-2 contact-person-row align-items-end">
+                                <div class="col-12 fw-semibold">Contact Person 1</div>
+
+                                <div class="col-md-3">
+                                    <input type="text" name="ContactPersons[0].Name" class="form-control" placeholder="Name" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" name="ContactPersons[0].Mobile" class="form-control" placeholder="Mobile" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" name="ContactPersons[0].Email" class="form-control" placeholder="Email" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="text" name="ContactPersons[0].Designation" class="form-control" placeholder="Designation" required>
+                                </div>
+                                <div class="col-md-3 mt-2">
+                                    <input type="date" name="ContactPersons[0].ContactPersonDOB" class="form-control" required>
+                                </div>
+                                <div class="col-md-1 mt-2">
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="addContactPersonRow()">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label>Landline Number</label>
+                        <input type="text" name="Landline" class="form-control">
+                    </div>
+
+                    <!-- Lead Source -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Lead Source <span class="text-danger">*</span></label>
+                        <select name="LeadSource" id="leadSourceSelect" class="form-select" required onchange="toggleLeadSourceFields()">
+                            <option value="">Select</option>
+                            <option>Walk-in</option>
+                            <option>Agency</option>
+                            <option>Referral</option>
+                            <option>Cold Call</option>
+                        </select>
+                    </div>
+
+                    <!-- Conditional Fields -->
+                    <div id="agencyFields" class="row g-3 d-none">
+                        <div class="col-md-6">
+                            <label class="form-label">External Agency Name <span class="text-danger">*</span></label>
+                            <input type="text" name="ExternalAgencyName" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">External Agent Name <span class="text-danger">*</span></label>
+                            <input type="text" name="ExternalAgentName" class="form-control">
+                        </div>
+                    </div>
+
+                    <div id="referralField" class="row g-3 d-none">
+                        <div class="col-md-12">
+                            <label class="form-label">Referral Person Name <span class="text-danger">*</span></label>
+                            <input type="text" name="ReferralPersonName" class="form-control">
+                        </div>
+                    </div>
+
+                    <!-- Remarks -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Remarks <span class="text-danger">*</span></label>
+                        <textarea name="Remarks" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">Status</label>
+                        <input type="text" name="Status" class="form-control" value="Submitted" readonly>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4">
+                    <a href="/ServiceRequest/ServiceRequestDashboard?dashboardType=TotalTask" class="btn btn-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+                let contactPersonIndex = 1;
+
+        function updateContactPersonRows() {
+            const rows = document.querySelectorAll('.contact-person-row');
+
+            rows.forEach((row, i) => {
+                const nameInput = row.querySelector('input[placeholder="Name"]');
+                const mobileInput = row.querySelector('input[placeholder="Mobile"]');
+                const emailInput = row.querySelector('input[placeholder="Email"]');
+                const designationInput = row.querySelector('input[placeholder="Designation"]');
+                const dobInput = row.querySelector('input[placeholder="DOB"]');
+                const label = row.querySelector('.contact-person-label');
+
+                if (nameInput) nameInput.name = `ContactPersons[${i}].Name`;
+                if (mobileInput) mobileInput.name = `ContactPersons[${i}].Mobile`;
+                if (emailInput) emailInput.name = `ContactPersons[${i}].Email`;
+                if (designationInput) designationInput.name = `ContactPersons[${i}].Designation`;
+                if (dobInput) dobInput.name = `ContactPersons[${i}].ContactPersonDOB`;
+                if (label) label.textContent = `Contact Person ${i + 1}`;
+            });
+        }
+
+        function addContactPersonRow(autoUpdate = true) {
+            const container = document.getElementById('contactPersonContainer');
+            const row = document.createElement('div');
+            row.classList.add('row', 'g-2', 'contact-person-row', 'mt-2');
+
+            row.innerHTML = `
+                <div class="col-12 contact-person-label fw-bold mb-1">Contact Person</div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Name" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Mobile" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Email" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" class="form-control" placeholder="Designation" required>
+                </div>
+                <div class="col-md-3">
+                    <input type="date" class="form-control" placeholder="DOB" required>
+                </div>
+                <div class="col-md-1 d-flex">
+                    <button type="button" class="btn btn-sm btn-outline-success me-1" onclick="addContactPersonRow()">
+                        <i class="bi bi-plus-lg"></i>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeContactPersonRow(this)">
+                        <i class="bi bi-dash-lg"></i>
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(row);
+
+            // THIS is what fixes the problem!
+            if (autoUpdate) updateContactPersonRows();
+        }
+
+                function removeContactPersonRow(button) {
+                    const row = button.closest('.contact-person-row');
+                    row.remove();
+                    updateContactPersonRows();
+                }
+
+                // Call on load to initialize names correctly
+                document.addEventListener("DOMContentLoaded", updateContactPersonRows);
+
+
+
+
+                async function loadLeadDetails(productRefNo) {
+                    try {
+                        // Show loading indicator if needed
+                        $('#leadDetailModal .modal-body').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p>Loading details...</p></div>');
+
+                        // Load the partial view
+                        const response = await fetch(`/Lead/GetLeadDetails?productRefNo=${encodeURIComponent(productRefNo)}`);
+                        const html = await response.text();
+
+                        // Update the modal content
+                        $('#leadDetailModal .modal-body').html(html);
+
+                        // Set the title
+                        document.getElementById("leadIdTitle").innerText = productRefNo;
+
+                        // Show the modal
+                        const modal = new bootstrap.Modal(document.getElementById('leadDetailModal'));
+                        modal.show();
+                    } catch (error) {
+                        console.error('Error loading lead details:', error);
+                        $('#leadDetailModal .modal-body').html('<div class="alert alert-danger">Error loading lead details. Please try again.</div>');
+                    }
+                }
+
+
+                function submitSubjectMatter() {
+                    const form = document.getElementById('subjectMatterForm');
+                    const formData = new FormData(form);
+
+                    const jsonData = {};
+                    formData.forEach((value, key) => {
+                        jsonData[key] = value;
+                    });
+
+                    jsonData.ProductRefNo = document.getElementById('leadIdTitle').innerText;
+
+                    fetch('/Lead/UpdateLeadDetails', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(jsonData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                          if (data.success) {
+                     alert('Saved successfully!');
+                     location.reload(); // Reloads the current page
+                 } else {
+                     alert('Error: ' + (data.message || 'Failed to save.'));
+                 }
+                    })
+                    .catch(() => {
+                        alert('An error occurred while saving.');
+                    });
+                }
+
+                // Helper function to show toast notifications
+                function showToast(message, type = 'success') {
+                    // Implement your toast notification here
+                    // Example using Bootstrap toasts:
+                    const toast = new bootstrap.Toast(document.getElementById('notificationToast'));
+                    document.getElementById('toastMessage').textContent = message;
+                    document.getElementById('notificationToast').classList.remove('bg-success', 'bg-danger');
+                    document.getElementById('notificationToast').classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+                    toast.show();
+                }
+
+                // Function to refresh the table
+                function refreshLeadTable() {
+                     fetch('/Lead/LeadDashboard')
+                        .then(response => response.text())
+                        .then(html => {
+                            document.querySelector('#serviceTable tbody').innerHTML = html;
+                            // Re-initialize DataTable if you're using it
+                            if ($.fn.DataTable.isDataTable('#serviceTable')) {
+                                $('#serviceTable').DataTable().destroy();
+                            }
+                            $('#serviceTable').DataTable({
+                                // Your DataTable config
+                            });
+                        });
+                }
+
+
+
+
+                document.getElementById("tradeLicenseNumber").addEventListener("input", async function () {
+                    const tradeLicenseNumber = this.value.trim();
+
+                    if (tradeLicenseNumber === "") {
+                        resetLeadForm();
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch(`/Lead/GetLeadByTradeLicense?tradeLicenseNumber=${encodeURIComponent(tradeLicenseNumber)}`);
+                        if (response.ok) {
+                            const data = await response.json();
+
+                            if (data && data.success) {
+                                populateLeadForm(data.lead);
+                            } else {
+                                resetLeadForm();
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Error fetching data:", err);
+                        resetLeadForm();
+                    }
+                });
+
+       function populateLeadForm(lead) {
+            try {
+                console.log("Populating form with:", lead);
+
+                document.querySelector('[name="CompanyName"]').value = lead.companyName || "";
+                document.querySelector('[name="Address"]').value = lead.address || "";
+                document.querySelector('[name="TradeLicenseExpiry"]').value = lead.tradeLicenseExpiry || "";
+                document.querySelector('[name="VAT"]').value = lead.vatTrn || "";
+                document.querySelector('[name="Product"]').value = lead.product || "";
+                document.querySelector('[name="LeadSource"]').value = lead.leadSource || "";
+                document.querySelector('[name="Landline"]').value = lead.landline || "";
+
+
+                clearContactPersonFields();
+
+                if (lead.contactPersons && lead.contactPersons.length > 1) {
+                    for (let i = 1; i < lead.contactPersons.length; i++) {
+                        addContactPersonRow(false);
+                    }
+                }
+
+                updateContactPersonRows();
+
+                if (lead.contactPersons && lead.contactPersons.length > 0) {
+                    lead.contactPersons.forEach((cp, index) => {
+                        const nameInput = document.querySelector(`[name="ContactPersons[${index}].Name"]`);
+                        const mobileInput = document.querySelector(`[name="ContactPersons[${index}].Mobile"]`);
+                        const emailInput = document.querySelector(`[name="ContactPersons[${index}].Email"]`);
+                        const designationInput = document.querySelector(`[name="ContactPersons[${index}].Designation"]`);
+                        const dobInput = document.querySelector(`[name="ContactPersons[${index}].ContactPersonDOB"]`);
+
+                        if (nameInput) nameInput.value = cp.name || "";
+                        if (mobileInput) mobileInput.value = cp.mobile || "";
+                        if (emailInput) emailInput.value = cp.email || "";
+                        if (designationInput) designationInput.value = cp.designation || "";
+                        if (dobInput) dobInput.value = cp.contactPersonDOB || "";
+                    });
+                }
+            } catch (err) {
+                console.error("Error populating form:", err);
+            }
+
+             // Step 5: Handle Trade License file download (if exists)
+                     const tradeLicenseLink = document.getElementById("tradeLicenseDownload");
+                     if (lead.tradeLicensePath) {
+                         tradeLicenseLink.href = lead.tradeLicensePath;
+                         tradeLicenseLink.classList.remove("d-none");
+                     } else {
+                         tradeLicenseLink.classList.add("d-none");
+                     }
+
+                     // Step 6: Handle VAT Certificate file download (if exists)
+                     const vatCertificateLink = document.getElementById("vatCertificateDownload");
+                     if (lead.vatCertificatePath) {
+                         vatCertificateLink.href = lead.vatCertificatePath;
+                         vatCertificateLink.classList.remove("d-none");
+                     } else {
+                         vatCertificateLink.classList.add("d-none");
+                     }
+        }
+
+                //   function populateLeadForm(lead) {
+                //     // Fill basic fields
+                //     document.querySelector('[name="CompanyName"]').value = lead.companyName || "";
+                //     document.querySelector('[name="Address"]').value = lead.address || "";
+                //     document.querySelector('[name="TradeLicenseExpiry"]').value = lead.tradeLicenseExpiry || "";
+                //     document.querySelector('[name="VAT"]').value = lead.vatTrn || "";
+                //     document.querySelector('[name="Product"]').value = lead.product || "";
+                //     document.querySelector('[name="LeadSource"]').value = lead.leadSource || "";
+                //     document.querySelector('[name="Landline"]').value = lead.landline || "";
+
+                //     // Step 1: Clear old contact person fields
+                //     clearContactPersonFields();
+
+                //     // Step 2: Add extra rows if more than 1 contact person exists
+                //     if (lead.contactPersons && lead.contactPersons.length > 1) {
+                //         for (let i = 1; i < lead.contactPersons.length; i++) {
+                //             addContactPersonRow(false); // Add row without auto-reindexing
+                //         }
+                //     }
+
+                //     // Step 3: Re-index the contact person inputs
+                //     updateContactPersonRows();
+
+                //     // Step 4: Fill in the values for each contact person
+                //     if (lead.contactPersons && lead.contactPersons.length > 0) {
+                //         lead.contactPersons.forEach((cp, index) => {
+                //             document.querySelector(`[name="ContactPersons[${index}].Name"]`).value = cp.name || "";
+                //             document.querySelector(`[name="ContactPersons[${index}].Mobile"]`).value = cp.mobile || "";
+                //             document.querySelector(`[name="ContactPersons[${index}].Email"]`).value = cp.email || "";
+                //             document.querySelector(`[name="ContactPersons[${index}].Designation"]`).value = cp.designation || "";
+                //         });
+                //     }
+
+                //     // Step 5: Handle Trade License file download (if exists)
+                //     const tradeLicenseLink = document.getElementById("tradeLicenseDownload");
+                //     if (lead.tradeLicensePath) {
+                //         tradeLicenseLink.href = lead.tradeLicensePath;
+                //         tradeLicenseLink.classList.remove("d-none");
+                //     } else {
+                //         tradeLicenseLink.classList.add("d-none");
+                //     }
+
+                //     // Step 6: Handle VAT Certificate file download (if exists)
+                //     const vatCertificateLink = document.getElementById("vatCertificateDownload");
+                //     if (lead.vatCertificatePath) {
+                //         vatCertificateLink.href = lead.vatCertificatePath;
+                //         vatCertificateLink.classList.remove("d-none");
+                //     } else {
+                //         vatCertificateLink.classList.add("d-none");
+                //     }
+                // }
+
+
+                     document.addEventListener("DOMContentLoaded", function () {
+                    const leadModalEl = document.getElementById('leadModal');
+
+                    // Reset form and fields when modal is closed
+                    leadModalEl.addEventListener('hidden.bs.modal', function () {
+                        document.getElementById('leadForm').reset();
+                        clearDownloadLinks();
+                        clearContactPersonFields();
+                    });
+
+                    // Clear form if Trade License Number is removed
+                    const tradeLicenseInput = document.querySelector('[name="TradeLicenseNumber"]');
+                    tradeLicenseInput.addEventListener('input', function () {
+                        if (this.value.trim() === "") {
+                            document.getElementById('leadForm').reset();
+                            clearDownloadLinks();
+                            clearContactPersonFields();
+                        }
+                    });
+                });
+                        function clearDownloadLinks() {
+                    const tradeLink = document.getElementById("tradeLicenseDownload");
+                    const vatLink = document.getElementById("vatCertificateDownload");
+
+                    if (tradeLink) tradeLink.classList.add("d-none");
+                    if (vatLink) vatLink.classList.add("d-none");
+                }
+
+                function clearContactPersonFields() {
+                    const container = document.getElementById('contactPersonContainer');
+                    container.innerHTML = '';
+
+                    // Add one initial blank row
+                    const row = document.createElement('div');
+                    row.classList.add('row', 'g-2', 'contact-person-row');
+                    row.innerHTML = `
+        <div class="col-12 contact-person-label fw-bold mb-1">Contact Person 1</div>
+        <div class="col-md-3">
+        <input type="text" name="ContactPersons[0].Name" class="form-control" placeholder="Name" required>
+        </div>
+        <div class="col-md-3">
+        <input type="text" name="ContactPersons[0].Mobile" class="form-control" placeholder="Mobile" required>
+        </div>
+        <div class="col-md-3">
+        <input type="text" name="ContactPersons[0].Email" class="form-control" placeholder="Email" required>
+        </div>
+        <div class="col-md-3">
+        <input type="text" name="ContactPersons[0].Designation" class="form-control" placeholder="Designation" required>
+        </div>
+        <div class="col-md-3">
+        <input type="date" name="ContactPersons[0].ContactPersonDOB" class="form-control" placeholder="DOB" required>
+        </div>
+        <div class="col-md-1 d-flex">
+        <button type="button" class="btn btn-sm btn-outline-success me-1" onclick="addContactPersonRow()">
+        <i class="bi bi-plus-lg"></i>
+        </button>
+        </div>
+                    `;
+                    container.appendChild(row);
+                    contactPersonIndex = 1; // Reset index
+                }
+
+           function resetLeadForm() {
+                    const tradeInput = document.querySelector('[name="TradeLicenseNumber"]');
+                    const currentLicense = tradeInput.value; // Save current input
+
+                    document.getElementById('leadForm').reset(); // Reset everything
+                    tradeInput.value = currentLicense; // Restore just the license number
+
+                    clearDownloadLinks();
+                    clearContactPersonFields();
+                }
+
+
+                        function toggleLeadSourceFields() {
+                    const leadSource = document.getElementById('leadSourceSelect').value;
+                    const agencyFields = document.getElementById('agencyFields');
+                    const referralField = document.getElementById('referralField');
+
+                    // Hide all first
+                    agencyFields.classList.add('d-none');
+                    referralField.classList.add('d-none');
+
+                    // Clear required attributes
+                    document.querySelector('[name="ExternalAgencyName"]').required = false;
+                    document.querySelector('[name="ExternalAgentName"]').required = false;
+                    document.querySelector('[name="ReferralPersonName"]').required = false;
+
+                    // Show relevant fields based on selection
+                    if (leadSource === 'Agency') {
+                        agencyFields.classList.remove('d-none');
+                        document.querySelector('[name="ExternalAgencyName"]').required = true;
+                        document.querySelector('[name="ExternalAgentName"]').required = true;
+                    }
+                    else if (leadSource === 'Referral') {
+                        referralField.classList.remove('d-none');
+                        document.querySelector('[name="ReferralPersonName"]').required = true;
+                    }
+                }
+
+                // Initialize on page load
+                document.addEventListener("DOMContentLoaded", function() {
+                    toggleLeadSourceFields(); // Set initial state
+                });
+
+
+    </script>
+
+}

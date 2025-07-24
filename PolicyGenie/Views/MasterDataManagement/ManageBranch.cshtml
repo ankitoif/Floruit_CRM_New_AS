@@ -1,0 +1,188 @@
+﻿@using OIF.Cams.Model.ViewModels
+@model BranchViewModel
+
+@{
+    ViewData["Title"] = "Manage Branch";
+}
+
+<div class="container mt-5">
+    <!-- Left-Aligned Gray Header -->
+    <div class="mb-4">
+        <h4 class="fw-semibold text-decoration-underline text-secondary mb-1">
+            Create New Branch
+        </h4>
+    </div>
+
+    <form asp-action="ManageBranch" method="post" class="row align-items-center g-3 mb-4">
+        <div class="col-md-3 d-flex align-items-center">
+            <label asp-for="CustomerOrgId" class="form-label me-2" style="width: 30%;">Organisation</label>
+            <select asp-for="CustomerOrgId" asp-items="Model.CustomerOrgs" class="form-select" style="width: 70%;">
+                <option value="">select organisation</option>
+            </select>
+        </div>
+
+        <div class="col-md-3 d-flex align-items-center">
+            <label asp-for="BranchName" class="form-label me-2" style="width: 30%;">Branch Name</label>
+            <input asp-for="BranchName" class="form-control" style="width: 70%;" />
+        </div>
+
+        <div class="col-md-3 d-flex align-items-center">
+            <label asp-for="BranchCode" class="form-label me-2" style="width: 30%;">Branch Code</label>
+            <input asp-for="BranchCode" class="form-control" style="width: 70%;" />
+        </div>
+
+        <div class="col-md-3 d-flex align-items-center">
+            <label asp-for="BranchAddress" class="form-label me-2" style="width: 30%;">Branch Address</label>
+            <textarea asp-for="BranchAddress" class="form-control" style="width: 70%;"></textarea>
+        </div>
+
+        <div class="col-md-12 d-flex justify-content-center mt-3">
+            <button type="submit" class="btn btn-primary me-3 px-4">Create</button>
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+        </div>
+    </form>
+
+
+
+    <hr class="my-4" />
+
+    <h4 class="fw-semibold text-decoration-underline text-secondary mb-1">Branch List</h4>
+
+    <div class="table-responsive">
+        <table id="branchTable" class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Branch Name</th>
+                    <th>Branch Code</th>
+                    <th>Branch Address</th>
+                    <th>Organisation</th>
+                    <th>Status</th>
+                    <th>Created Date</th>
+                    <th>Modified Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.BranchList != null && Model.BranchList.Any())
+                {
+                    foreach (var branch in Model.BranchList)
+                    {
+                        <tr>
+                            <td>@branch.BranchName</td>
+                            <td>@branch.BranchCode</td>
+                            <td>@branch.BranchAddress</td>
+                            <td>@branch.Organisation</td>
+                            <td>
+                                <u>
+                                <span class="branch-status-toggle @(branch.IsValid == true ? "text-success" : "text-danger")"
+                                      style="cursor:pointer"
+                                      data-branch-id="@branch.BranchId"
+                                      data-status="@branch.IsValid">
+                                    @(branch.IsValid == true ? "Active" : "InActive")
+                                    </span>
+                                </u>
+                            </td>
+                            <td>@branch.CreatedDateTime?.ToString("dd-MM-yyyy")</td>
+                            <td>@branch.ModifiedDateTime?.ToString("dd-MM-yyyy")</td>                           
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="6" class="text-center">No branches found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Branch Status Modal -->
+<div class="modal fade" id="branchStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="branchStatusForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Branch Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="branchIdHidden" />
+                    <p>Do you want to change the status of this branch to:</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="branchStatus" id="statusActive" value="true">
+                        <label class="form-check-label" for="statusActive">Active</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="branchStatus" id="statusInactive" value="false">
+                        <label class="form-check-label" for="statusInactive">Inactive</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link href="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.css" rel="stylesheet" />
+    <script src="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+                    $('#branchTable').DataTable({
+                        "pagingType": "full_numbers",
+                        "pageLength": 10,
+                        "lengthMenu": [2, 5, 10, 25, 50, 75, 100],
+                        "language": {
+                            "paginate": {
+                                "first": "<<",
+                                "last": ">>",
+                                "next": ">",
+                                "previous": "<"
+                            }
+                        }
+                    });
+
+                $(document).on('click', '.branch-status-toggle', function () {
+            const branchId = $(this).data('branch-id');
+            const currentStatus = $(this).data('status') === true || $(this).data('status') === "True";
+
+            $('#branchIdHidden').val(branchId);
+            $('#statusActive').prop('checked', currentStatus);
+            $('#statusInactive').prop('checked', !currentStatus);
+
+            const modal = new bootstrap.Modal(document.getElementById('branchStatusModal'));
+            modal.show();
+        });
+
+        $('#branchStatusForm').on('submit', function (e) {
+            e.preventDefault();
+
+            const branchId = $('#branchIdHidden').val();
+            const newStatus = $('input[name="branchStatus"]:checked').val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateBranchStatus", "MasterDataManagement")',
+                type: 'POST',
+                data: { branchId: branchId, isValid: newStatus },
+                success: function (response) {
+                    $('#branchStatusModal').modal('hide');
+                       if (response.success) {
+               AlertMessage("G//" + response.message, 3000, "suc");
+               setTimeout(() => location.reload(), 1000);
+           } else {
+               AlertMessage("R//" + (response.message || "Failed to update status!"), 3000, "fail");
+           }
+                },
+                error: function () {
+                    alert("Failed to update branch status.");
+                }
+            });
+        });
+     });
+
+    </script>
+}

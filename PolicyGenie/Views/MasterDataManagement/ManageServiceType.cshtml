@@ -1,0 +1,175 @@
+﻿@using OIF.Cams.Model.ViewModels
+@model ServiceTypeViewModel
+
+@{
+    ViewData["Title"] = "Manage Service Types";
+}
+
+<div class="container mt-5">
+    <!-- Header -->
+    <div class="mb-4">
+        <h4 class="fw-semibold text-decoration-underline text-secondary mb-2">Create New Service Type</h4>
+    </div>
+    <!-- CREATE FORM -->
+    <form asp-action="ManageServiceType" method="post" class="row align-items-center g-3 mb-4">
+        <div class="col-md-4 d-flex align-items-center">
+            <label asp-for="CustomerOrgId" class="form-label me-2" style="width:30%;">Organisation</label>
+            <select asp-for="CustomerOrgId"
+                    asp-items="Model.CustomerOrgs"
+                    class="form-select" style="width:70%;">
+                <option value="">select organisation</option>
+            </select>
+        </div>
+
+        <div class="col-md-4 d-flex align-items-center">
+            <label asp-for="ServiceTypeDescription" class="form-label me-2" style="width:30%;">Service Type</label>
+            <input asp-for="ServiceTypeDescription" class="form-control" style="width:70%;" />
+        </div>
+
+        <div class="col-md-4 d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary me-2 px-4">Create</button>
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+        </div>
+    </form>
+
+    <hr class="my-4" />
+
+    <!-- SERVICE TYPE LIST -->
+    <h4 class="fw-semibold text-decoration-underline text-secondary mb-3">Service Type List</h4>
+    <table id="serviceTypeTable" class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Service Type</th>
+                <th>Organisation</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Modified Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.ServiceTypeList?.Any() == true)
+            {
+                foreach (var st in Model.ServiceTypeList)
+                {
+                    <tr>
+                        <td>@st.ServiceTypeDescription</td>
+                        <td>@st.Organisation</td>
+                        <td>
+                            <a href="#"
+                               class="service-status-toggle @(st.IsValid == true ? "text-success" : "text-danger")"
+                               data-service-id="@st.ServiceTypeId"
+                               data-status="@st.IsValid"
+                               title="Click to change status">
+                                @(st.IsValid == true ? "Active" : "Inactive")
+                            </a>
+                        </td>
+                        <td>@st.CreatedDateTime?.ToString("dd-MM-yyyy")</td>
+                        <td>@st.ModifiedDateTime?.ToString("dd-MM-yyyy")</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr><td colspan="5" class="text-center">No service types found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- STATUS MODAL -->
+<div class="modal fade" id="serviceStatusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="serviceStatusForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Service Type Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="serviceTypeIdHidden" />
+                    <p>Do you want to change the status of this service type to:</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="serviceStatus"
+                               id="statusActive" value="true">
+                        <label class="form-check-label" for="statusActive">Active</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="serviceStatus"
+                               id="statusInactive" value="false">
+                        <label class="form-check-label" for="statusInactive">Inactive</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Update</button>
+                    <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <link href="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.css" rel="stylesheet" />
+    <script src="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            /* Initialise DataTable */
+            $('#serviceTypeTable').DataTable({
+               "pagingType": "full_numbers",
+                        "pageLength": 10,
+                        "lengthMenu": [2, 5, 10, 25, 50, 75, 100],
+                        "language": {
+                            "paginate": {
+                                "first": "<<",
+                                "last": ">>",
+                                "next": ">",
+                                "previous": "<"
+                            }
+                        }
+            });
+
+            /* Open modal on status click */
+            $(document).on('click', '.service-status-toggle', function () {
+                const id = $(this).data('service-id');
+                const status = $(this).data('status') === true || $(this).data('status') === "True";
+
+                $('#serviceTypeIdHidden').val(id);
+                $('#statusActive').prop('checked', status);
+                $('#statusInactive').prop('checked', !status);
+
+                new bootstrap.Modal('#serviceStatusModal').show();
+            });
+
+            /* Submit status change */
+            $('#serviceStatusForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const id = $('#serviceTypeIdHidden').val();
+                const isValid = $('input[name="serviceStatus"]:checked').val();
+
+                $.ajax({
+                    url: '@Url.Action("UpdateServiceStatus", "MasterDataManagement")',
+                    type: 'POST',
+                    data: { serviceTypeId: id, isValid: isValid },
+                    success: function (response) {
+                        $('#serviceStatusModal').modal('hide');
+                         if (response.success) {
+            AlertMessage("G//" + response.message, 3000, "suc");
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            AlertMessage("R//" + (response.message || "Failed to update status!"), 3000, "fail");
+        }
+                    },
+                    error: function () {
+                        AlertMessage("R//Failed to update status", 3000, "fail");
+                    }
+                });
+            });
+        });
+    </script>
+}

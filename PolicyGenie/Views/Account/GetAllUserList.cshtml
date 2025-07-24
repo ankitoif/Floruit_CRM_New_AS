@@ -1,0 +1,163 @@
+﻿@using OIF.Cams.Model.ViewModels
+@model List<UserListViewModel>
+
+@{
+    ViewData["Title"] = "User List";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h4><u>User Management</u></h4>
+        <a class="btn btn-primary" href="@Url.Action("CreateUser", "Account")">Create User</a>
+    </div>
+
+    <div id="userListContainer"></div>
+</div>
+
+<!-- Status Change Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="statusForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change User Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="statusUserId" />
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="statusRadio" id="statusActive" value="true">
+                        <label class="form-check-label" for="statusActive">Active</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="statusRadio" id="statusInactive" value="false">
+                        <label class="form-check-label" for="statusInactive">Inactive</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Change Status</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Lockout Change Modal -->
+<div class="modal fade" id="lockoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="lockoutForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Change Lockout Status</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="lockoutUserId" />
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="lockoutRadio" id="lockoutLocked" value="true">
+                        <label class="form-check-label" for="lockoutLocked">Locked</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="lockoutRadio" id="lockoutUnlocked" value="false">
+                        <label class="form-check-label" for="lockoutUnlocked">Unlocked</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Change Lockout</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link href="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.css" rel="stylesheet" />
+    <script src="https://cdn.datatables.net/v/dt/dt-2.2.1/datatables.min.js"></script>
+
+    <script>
+        /* -------- Load & render users -------- */
+        function loadUsers() {
+            $.ajax({
+                url: '@Url.Action("GetAllUserLists", "Account")',
+                type: 'GET',
+                success: function (html) {
+                    $('#userListContainer').html(html);
+
+                    // destroy old DT if exists
+                    if ($.fn.DataTable.isDataTable('#userListTable')) {
+                        $('#userListTable').DataTable().destroy();
+                    }
+
+                    // init DataTable
+                    $('#userListTable').DataTable({
+                        scrollY: '60vh',
+                        scrollCollapse: true,
+                        pagingType: "full_numbers",
+                        pageLength: 10,
+                        lengthMenu: [2, 5, 10, 25, 50, 75, 100],
+                        language: {
+                            paginate: { first: "<<", last: ">>", next: ">", previous: "<" }
+                        }
+                    });
+                },
+                error: () => alert("Failed to load users.")
+            });
+        }
+
+        /* -------- Status modal -------- */
+        $(document).on('click', '.status-toggle', function () {
+            const id = $(this).data('user-id');
+            const active = $(this).data('current') === true || $(this).data('current') === "True";
+            $('#statusUserId').val(id);
+            $('#statusActive').prop('checked', active);
+            $('#statusInactive').prop('checked', !active);
+            new bootstrap.Modal('#statusModal').show();
+        });
+
+        $(document).on('submit', '#statusForm', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: '@Url.Action("ChangeUserStatus", "Account")',
+                type: 'POST',
+                data: {
+                    userId: $('#statusUserId').val(),
+                    isActive: $('input[name="statusRadio"]:checked').val()
+                },
+                success: () => { 
+                    bootstrap.Modal.getInstance('#statusModal').hide();
+                loadUsers(); 
+                },
+                error: () => alert('Failed to change user status.')
+            });
+        });
+
+        /* -------- Lockout modal -------- */
+        $(document).on('click', '.lockout-toggle', function () {
+            const id = $(this).data('user-id');
+            const locked = $(this).data('locked') === true || $(this).data('locked') === "True";
+            $('#lockoutUserId').val(id);
+            $('#lockoutLocked').prop('checked', locked);
+            $('#lockoutUnlocked').prop('checked', !locked);
+            new bootstrap.Modal('#lockoutModal').show();
+        });
+
+        $(document).on('submit', '#lockoutForm', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: '@Url.Action("ChangeLockoutStatus", "Account")',
+                type: 'POST',
+                data: {
+                    userId: $('#lockoutUserId').val(),
+                    isLockedOut: $('input[name="lockoutRadio"]:checked').val()
+                },
+                success: () => { bootstrap.Modal.getInstance('#lockoutModal').hide(); loadUsers(); },
+                error: () => alert('Failed to change lockout status.')
+            });
+        });
+
+        /* Init on page load */
+        $(document).ready(loadUsers);
+    </script>
+}

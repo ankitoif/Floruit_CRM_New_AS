@@ -1,0 +1,193 @@
+﻿@{
+    // var logoUrl = Context.Session.GetString("LogoUrl");
+    var appLogoUrl = Context.Session.GetString("AppLogoUrl");
+    var branchAddress = Context.Session.GetString("BranchAddress");
+    var activeRole = User.FindFirst("ActiveRole")?.Value;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LetsFloruit</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/PolicyGenie.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
+    <style>
+        body {
+            display: flex;
+            overflow-x: hidden;
+        }
+
+        #sidebar {
+            min-width: 150px;
+            max-width: 150px;
+            background: #00a2d3;
+            color: #fff;
+            padding-top: 1rem;
+        }
+
+            #sidebar .nav-link {
+                color: #fff;
+            }
+
+                #sidebar .nav-link:hover {
+                    text-decoration: underline;
+                }
+
+        #content {
+            flex-grow: 1;
+        }
+
+        .header-bar {
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,.05);
+            padding: .75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+            .header-bar img {
+                height: 42px;
+            }
+
+        .branch-address {
+            font-size: .875rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    @if (activeRole == "Admin")
+    {
+        <div id="sidebar" class="d-flex flex-column">
+            <h4 class="text-center mb-1">LetsFloruit<hr/></h4>
+            <nav class="nav flex-column px-1">
+                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+
+                <a class="nav-link" asp-controller="Account" asp-action="CreateUser">Create User</a>
+                <a class="nav-link" asp-controller="Account" asp-action="AssignRole">Assign Role</a>
+                <a class="nav-link" asp-controller="Account" asp-action="GetAllUserList">User List</a>
+                <a class="nav-link" asp-controller="MasterDataManagement" asp-action="ManageBranch">Manage Branch</a>
+                <a class="nav-link" asp-controller="MasterDataManagement" asp-action="ManageServiceType">Manage ServieType</a>
+                <a class="nav-link" asp-controller="ServiceRequest" asp-action="DownloadReportSection">Download Report</a>
+
+            </nav>
+        </div>
+    }
+
+    <!-- Content -->
+    <div id="content" class="d-flex flex-column w-100">
+        <!-- Top Header -->
+        <div class="header-bar">
+            <div class="d-flex align-items-center gap-3">
+                @if (!string.IsNullOrEmpty(appLogoUrl))
+                {
+                    <img src="@Url.Content(appLogoUrl)" alt="PolicyGenie logo" />
+                }
+
+                @if (!string.IsNullOrEmpty(branchAddress))
+                {
+                    <div class="branch-address ms-0">
+                       Branch: <strong>@branchAddress</strong>
+                    </div>
+                }
+            </div>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <div class="dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                        @User.Identity.Name
+                        @if (!string.IsNullOrEmpty(activeRole))
+                        {
+                            <span> (@activeRole)</span>
+                        }
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#" onclick="openSwitchRoleModal()">Switch Role</a></li>
+                        <li>
+                            <form id="logoutForm" method="post" asp-controller="Account" asp-action="Logout" class="dropdown-item p-0">
+                                <button type="submit" class="btn btn-link w-100 text-start text-danger text-decoration-none">Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            }
+        </div>
+
+        <!-- Main Content -->
+        <main role="main" class="container-fluid" style="padding-bottom: 100px;">
+            <partial name="_ToastOrAlertPartial" />
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- Toast Area -->
+    <div id="divTransactionResult"></div>
+
+    <!-- Footer -->
+    <footer class="footer mt-auto py-3 bg-light text-center w-100">
+        <span>&copy; 2025 - LetsFloruit</span>
+    </footer>
+
+    <!-- Switch Role Modal -->
+    <div class="modal fade" id="switchRoleModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="switchRoleModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Global Loading Spinner -->
+    <div id="LoadingImage" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+     background: rgba(255,255,255,0.6); z-index: 9999; text-align: center;">
+        <div style="position: relative; top: 40%;">
+            <img src="/Image/LoadingImage_GIF.gif" alt="Loading..." style="width: 80px;" />
+            <p style="font-weight: bold; font-size: 16px; color: #2c3e50;">Please wait...</p>
+        </div>
+    </div>
+
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+        function openSwitchRoleModal() {
+            $.get('@Url.Action("SwitchRole", "Account")', function (html) {
+                $('#switchRoleModalContent').html(html);
+                $('#switchRoleModal').modal('show');
+            });
+        }
+
+        $(document).on('submit', '#switchRoleForm', function (e) {
+            e.preventDefault();
+            const selectedRole = $('#roleDropdown').val();
+            $.post('@Url.Action("SwitchRole", "Account")', { selectedRole })
+                .done(() => { $('#switchRoleModal').modal('hide'); setTimeout(() => location.reload(), 300); })
+                .fail(() => alert('Role switch failed.'));
+        });
+
+        // Auto logout after 10 mins inactivity
+        (function () {
+            const TIMEOUT = 10 * 60 * 1000;
+            let timer;
+            const reset = () => { clearTimeout(timer); timer = setTimeout(() => $('#logoutForm').submit(), TIMEOUT); };
+            ['load', 'mousemove', 'mousedown', 'click', 'scroll', 'keypress'].forEach(evt => window.addEventListener(evt, reset));
+            reset();
+        })();
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Styles", required: false)
+</body>
+</html>

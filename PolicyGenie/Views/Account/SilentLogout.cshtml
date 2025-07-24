@@ -1,0 +1,11 @@
+﻿@{
+    Layout = null; // No layout to avoid flicker
+}
+
+<form id="logoutForm" method="post" asp-controller="Account" asp-action="Logout">
+    @Html.AntiForgeryToken()
+</form>
+
+<script type="text/javascript">
+    document.getElementById('logoutForm').submit();
+</script>

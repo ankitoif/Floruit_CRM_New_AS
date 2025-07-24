@@ -1,0 +1,52 @@
+﻿@using OIF.Cams.Model.ViewModels
+@model IEnumerable<UserListViewModel>
+
+<table id="userListTable" class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Created</th>
+            <th>Branch</th>
+            <th>Organisation</th>
+            <th>Roles</th>
+            <th>Status</th>
+            <th>Lockout</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.Name</td>
+                <td>@u.Email</td>
+                <td>@u.Mobile</td>
+                <td>@u.CreatedDate?.ToString("dd-MM-yyyy")</td>
+                <td>@u.Branch</td>
+                <td>@u.Organisation</td>
+                <td>@string.Join(", ", u.Roles ?? new List<string>())</td>
+
+                <td><u>
+                    <span class="status-toggle @(u.IsActive == true ? "text-success" : "text-danger")"
+                          style="cursor:pointer"
+                          data-user-id="@u.UserId"
+                          data-current="@u.IsActive">
+                        @(u.IsActive == true ? "Active" : "Inactive")
+                        </span>
+                    </u>
+                </td>
+
+                <td><u>
+                    <span class="lockout-toggle @(u.IsUserLockOut == true ? "text-danger" : "text-success")"
+                          style="cursor:pointer"
+                          data-user-id="@u.UserId"
+                          data-locked="@u.IsUserLockOut">
+                        @(u.IsUserLockOut == true ? "Locked" : "Unlocked")
+                        </span>
+                    </u>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

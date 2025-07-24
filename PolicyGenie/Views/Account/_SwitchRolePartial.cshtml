@@ -1,0 +1,50 @@
+﻿@using OIF.Cams.Model.ViewModels
+@model SwitchRoleViewModel
+
+<form id="switchRoleForm" method="post" asp-action="SwitchRole" asp-controller="Account">
+    <div class="modal-header">
+        <h5 class="modal-title">Switch Role</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body">
+        <!-- Dropdown for New Role -->
+        <div class="mb-3">
+            <label for="roleDropdown" class="form-label">Select New Role</label>
+            <select class="form-select" name="selectedRole" id="roleDropdown" required>
+                <option value="" disabled selected>-- Select Role --</option>
+                @foreach (var role in Model.AvailableRoles)
+                {
+                    <option value="@role">@role</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Switch</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    </div>
+</form>
+
+<script>
+    $(document).ready(function () {
+        $('#switchRoleForm').submit(function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/Account/SwitchRole',
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    if (response.redirectUrl) {
+                        window.location.href = response.redirectUrl;
+                    }
+                },
+                error: function (xhr) {
+                    alert(xhr.responseText || 'Failed to switch role.');
+                }
+            });
+        });
+    });
+</script>

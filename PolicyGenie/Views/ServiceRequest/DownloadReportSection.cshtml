@@ -1,0 +1,321 @@
+﻿@{
+    ViewData["Title"] = "Download Report";
+}
+
+<form id="reportForm" method="post" action="/ServiceRequest/GenerateReport">
+    <div class="modal-content" style="font-family: Arial, sans-serif; padding: 20px;">
+        <div class="modal-header flex-column align-items-start p-0">
+            <h4 class="modal-title w-100 mb-3 d-flex align-items-center" style="font-size: 20px; font-weight: 700; color: #2c3e50; border-bottom: 1px solid #dee2e6; padding-bottom: 10px;">
+                Download Report
+            </h4>
+
+            <div class="d-flex gap-4 w-100 mb-4">
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    <label for="reportFormat" class="form-label mb-0" style="font-size: 15px; font-weight: 600; white-space: nowrap;">
+                        Select Format:
+                    </label>
+                    <select id="reportFormat" class="form-select" style="width: 150px; height: 35px; font-size: 14px;">
+                        <option disabled selected value="">select format</option>
+                        <option value="csv">.CSV</option>
+                        <option value="xlsx">.XLSX</option>
+                    </select>
+                </div>
+
+                <div class="d-flex align-items-center" style="gap: 8px;">
+                    <label for="dateRangeSelector" class="form-label mb-0" style="font-size: 15px; font-weight: 600; white-space: nowrap;">
+                        Select Range:
+                    </label>
+                    <select id="dateRangeSelector" class="form-select" style="width: 220px; height: 35px; font-size: 14px;" onchange="setDateRange()">
+                        <option disabled selected value="">select range</option>
+                        <option value="currentMonth">Current Month</option>
+                        <option value="lastMonth">Last Month</option>
+                        <option value="currentFiscal">Current Fiscal Year</option>
+                        <option value="lastFiscal">Last Fiscal Year</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-body pt-3">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="reportTitle" class="form-label" style="font-weight:600;">Report Title</label>
+                    <input type="text" id="reportTitle" class="form-control" placeholder="Enter Custom Report Title Name" style="height:35px;font-size:14px;" />
+                    @* <a href="#" class="d-block mt-2 text-primary" style="font-size:14px;">+ ADD DESCRIPTION</a> *@
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label d-block" style="font-weight:600;">From</label>
+                    <div class="d-flex gap-2">
+                        <select id="fromYear" class="form-select" style="height:35px;font-size:14px;"><option>Select</option></select>
+                        <select id="fromMonth" class="form-select" style="height:35px;font-size:14px;"><option>Select</option></select>
+                        <select id="fromDate" class="form-select" style="height:35px;font-size:14px;"><option>Select</option></select>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label d-block" style="font-weight:600;">To</label>
+                    <div class="d-flex gap-2">
+                        <select id="toYear" class="form-select" style="height:35px;font-size:14px;"><option>Select</option></select>
+                        <select id="toMonth" class="form-select" style="height:35px;font-size:14px;"><option>Select</option></select>
+                        <select id="toDate" class="form-select" style="height:35px;font-size:14px;"><option>Select</option></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer justify-content-end pt-2">
+            <button class="btn btn-link" data-bs-dismiss="modal">CANCEL</button>
+            <button type="button" class="btn btn-primary" onclick="submitReport()">GENERATE REPORT</button>
+        </div>
+
+        <input type="hidden" name="fromDate" id="HiddenFromDate" />
+        <input type="hidden" name="toDate" id="HiddenToDate" />
+        <input type="hidden" name="reportTitle" id="HiddenReportTitle" />
+        <input type="hidden" name="reportFormat" id="HiddenReportFormat" />
+    </div>
+
+    <div id="loadingSpinner" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+     background: rgba(255,255,255,0.6); z-index: 9999; text-align: center;">
+        <div style="position: relative; top: 40%;">
+            <img src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif" alt="Loading..." style="width: 80px;" />
+            <p style="font-weight: bold; font-size: 16px; color: #2c3e50;">Generating your report...</p>
+        </div>
+    </div>
+</form>
+
+<script>
+    var months = ["January", "February", "March", "April", "May", "June", "July",
+        "August", "September", "October", "November", "December"];
+
+    function fillOptions(sel, start, end) {
+        sel.innerHTML = '<option>Select</option>';
+        for (let i = start; i <= end; i++) {
+            sel.insertAdjacentHTML('beforeend', `<option value="${i}">${i}</option>`);
+        }
+    }
+
+    function fillMonths(sel, limitMonth) {
+        sel.innerHTML = '<option>Select</option>';
+        months.forEach((m, i) => {
+            if (i + 1 <= limitMonth) {
+                sel.insertAdjacentHTML('beforeend', `<option value="${i + 1}">${m}</option>`);
+            }
+        });
+    }
+
+    function fillDays(sel, y, m) {
+        sel.innerHTML = '<option>Select</option>';
+        if (!y || !m || y === "Select" || m === "Select") return;
+
+        var today = new Date();
+        var isCurrentMonth = (+y === today.getFullYear()) && (+m === (today.getMonth() + 1));
+        var lastDay = new Date(y, m, 0).getDate();
+        var maxDay = isCurrentMonth ? today.getDate() : lastDay;
+
+        for (let d = 1; d <= maxDay; d++) {
+            sel.insertAdjacentHTML('beforeend', `<option value="${d}">${d}</option>`);
+        }
+    }
+
+    function setDropdown(prefix, date) {
+        document.getElementById(prefix + 'Year').value = date.getFullYear();
+        fillMonths(document.getElementById(prefix + 'Month'), 12);
+        document.getElementById(prefix + 'Month').value = date.getMonth() + 1;
+        fillDays(document.getElementById(prefix + 'Date'), date.getFullYear(), date.getMonth() + 1);
+        document.getElementById(prefix + 'Date').value = date.getDate();
+    }
+
+    function clearDropdown(prefix) {
+        document.getElementById(prefix + 'Year').value = "Select";
+        document.getElementById(prefix + 'Month').innerHTML = '<option>Select</option>';
+        document.getElementById(prefix + 'Date').innerHTML = '<option>Select</option>';
+    }
+
+    function toggleDateFields(enable) {
+        ['fromYear', 'fromMonth', 'fromDate', 'toYear', 'toMonth', 'toDate']
+            .forEach(id => document.getElementById(id).disabled = !enable);
+    }
+
+    function setDateRange() {
+        var range = document.getElementById('dateRangeSelector').value;
+        var today = new Date();
+        let from, to;
+
+        switch (range) {
+            case 'currentMonth':
+                from = new Date(today.getFullYear(), today.getMonth(), 1);
+                to = today;
+                toggleDateFields(false);
+                break;
+            case 'lastMonth':
+                var last = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                from = new Date(last.getFullYear(), last.getMonth(), 1);
+                to = new Date(last.getFullYear(), last.getMonth() + 1, 0);
+                toggleDateFields(false);
+                break;
+            case 'currentFiscal':
+                from = new Date(today.getMonth() < 3 ? today.getFullYear() - 1 : today.getFullYear(), 3, 1);
+                to = today;
+                toggleDateFields(false);
+                break;
+            case 'lastFiscal':
+                var startY = today.getMonth() < 3 ? today.getFullYear() - 2 : today.getFullYear() - 1;
+                from = new Date(startY, 3, 1);
+                to = new Date(startY + 1, 2, 31);
+                toggleDateFields(false);
+                break;
+            case 'custom':
+                toggleDateFields(true);
+                clearDropdown('from');
+                clearDropdown('to');
+                return;
+            default:
+                return;
+        }
+
+        setDropdown('from', from);
+        setDropdown('to', to);
+    }
+
+    document.getElementById('fromYear').addEventListener('change', function () {
+        if (document.getElementById('dateRangeSelector').value !== 'custom') return;
+        var selectedYear = parseInt(this.value);
+        var limit = selectedYear === new Date().getFullYear() ? new Date().getMonth() + 1 : 12;
+        fillMonths(document.getElementById('fromMonth'), limit);
+        document.getElementById('fromDate').innerHTML = '<option>Select</option>';
+    });
+
+    document.getElementById('toYear').addEventListener('change', function () {
+        if (document.getElementById('dateRangeSelector').value !== 'custom') return;
+        var selectedYear = parseInt(this.value);
+        var limit = selectedYear === new Date().getFullYear() ? new Date().getMonth() + 1 : 12;
+        fillMonths(document.getElementById('toMonth'), limit);
+        document.getElementById('toDate').innerHTML = '<option>Select</option>';
+    });
+
+    document.getElementById('fromMonth').addEventListener('change', function () {
+        if (document.getElementById('dateRangeSelector').value !== 'custom') return;
+        var y = parseInt(document.getElementById('fromYear').value);
+        fillDays(document.getElementById('fromDate'), y, this.value);
+    });
+
+    document.getElementById('toMonth').addEventListener('change', function () {
+        if (document.getElementById('dateRangeSelector').value !== 'custom') return;
+        var y = parseInt(document.getElementById('toYear').value);
+        fillDays(document.getElementById('toDate'), y, this.value);
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+        var currentYear = new Date().getFullYear();
+        fillOptions(document.getElementById('fromYear'), 2020, currentYear);
+        fillOptions(document.getElementById('toYear'), 2020, currentYear);
+        toggleDateFields(false);
+    });
+
+
+
+       function submitReport() {
+        var rangeType = document.getElementById('dateRangeSelector').value;
+
+        var getDate = (prefix) => {
+            var y = document.getElementById(prefix + 'Year').value;
+            var m = document.getElementById(prefix + 'Month').value;
+            var d = document.getElementById(prefix + 'Date').value;
+            return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        };
+
+        if (rangeType === 'custom' &&
+            ["fromYear","fromMonth","fromDate","toYear","toMonth","toDate"]
+                .some(id => document.getElementById(id).value === "Select")) {
+            alert("Please select complete date range.");
+            return;
+        }
+
+        var fromDate = getDate("from") + "T00:00:00";
+        var toDate = getDate("to") + "T23:59:59";
+
+        var formData = {
+            fromDate: fromDate,
+            toDate: toDate,
+            reportTitle: $("#reportTitle").val() || "Lead Report",
+            reportFormat: $("#reportFormat").val()
+        };
+
+        if (!formData.reportFormat) {
+            alert("Please select a report format.");
+            return;
+        }
+
+        $("#loadingSpinner").show();
+
+        $.ajax({
+            url: '/ServiceRequest/GenerateReport',
+            type: 'POST',
+            data: formData,
+            dataType: 'binary',
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(data, status, xhr) {
+                $("#loadingSpinner").hide();
+
+                var contentType = xhr.getResponseHeader('Content-Type');
+
+                if (contentType && contentType.includes('application/json')) {
+                    var reader = new FileReader();
+                    reader.onload = function() {
+                        try {
+                            var response = JSON.parse(reader.result);
+                            alert(response.message);
+                            location.reload(); 
+                        } catch (e) {
+                            alert("Error processing response: " + e.message);
+                            location.reload();
+                        }
+                    };
+                    reader.readAsText(data);
+                }
+                else if (contentType && (contentType.includes('text/csv') || contentType.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))) {
+                    var filename = xhr.getResponseHeader('Content-Disposition')?.split('filename=')[1] || 'report';
+                    var blob = new Blob([data], { type: contentType });
+                    var url = URL.createObjectURL(blob);
+
+                    var a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    setTimeout(() => location.reload(), 1000);
+                }
+                else {
+                    alert("Unexpected response from server");
+                    location.reload();
+                }
+            },
+            error: function(xhr, status, error) {
+                $("#loadingSpinner").hide();
+
+                if (xhr.status === 404) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        alert(response.message);
+                    } catch (e) {
+                        alert("No data found for the selected date range.");
+                    }
+                }
+                // Handle other errors
+                else {
+                    alert("An error occurred: " + (xhr.responseText || error));
+                }
+
+                // Always reload after error
+                location.reload();
+            }
+        });
+    }
+</script>

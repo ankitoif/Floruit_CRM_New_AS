@@ -1,0 +1,211 @@
+﻿@using OIF.Cams.Model.ViewModels
+@model CreateUserViewModel
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-4 ms-5">
+    <h4 class="mb-4">Create User</h4>
+    <form asp-action="CreateUser" method="post" class="border p-4 rounded shadow-sm bg-light">
+
+        <div class="row mb-5" id="orgId">
+            <div class="col-md-4">
+                <label asp-for="OrganisationId" class="form-label">Organisation</label>
+                <select asp-for="OrganisationId" asp-items="Model.OrganisationList" class="form-select" id="organisationId">
+                    <option value="">Select Organisation</option>
+                </select>
+                <span asp-validation-for="OrganisationId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4" id="branchId">
+                <label asp-for="BranchId" class="form-label">Branch</label>
+                <select asp-for="BranchId" asp-items="Model.BranchList" class="form-select">
+                </select>
+                <span asp-validation-for="BranchId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4" id="roleId">
+                <label asp-for="Role" class="form-label">Role Type</label>
+                <select asp-for="Role" asp-items="Model.AllRoles" class="form-select">
+                </select>
+                <span asp-validation-for="Role" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row mb-5" id="personalRow1">
+            <div class="col-md-4">
+                <label asp-for="Salutation" class="form-label">Salutation</label>
+                <select asp-for="Salutation" class="form-control">
+                    <option value="">Select Salutation</option>
+                    <option value="Mr.">Mr.</option>
+                    <option value="Ms.">Ms.</option>
+                    <option value="Mrs.">Mrs.</option>
+                    <option value="Dr.">Dr.</option>
+                </select>
+                <span asp-validation-for="Salutation" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="FirstName" class="form-label">First Name</label>
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="LastName" class="form-label">Last Name</label>
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row mb-5" id="personalRow2">
+            <div class="col-md-4">
+                <label asp-for="GenderId" class="form-label">Gender</label>
+                <select asp-for="GenderId" asp-items="Model.GenderList" class="form-select">
+                    <option value="">Select Gender</option>
+                </select>
+                <span asp-validation-for="GenderId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Dob" class="form-label">Date of Birth</label>
+                <input asp-for="Dob" type="date" class="form-control" />
+                <span asp-validation-for="Dob" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="MobileNo" class="form-label">Mobile No</label>
+                <input asp-for="MobileNo" class="form-control" maxlength="10" pattern="\d{10}" title="Enter a 10-digit mobile number" inputmode="numeric" autocomplete="off" />
+                <span asp-validation-for="MobileNo" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row mb-5" id="personalRow3">
+            <div class="col-md-4">
+                <label asp-for="NationalityId" class="form-label">Nationality</label>
+                <select asp-for="NationalityId" asp-items="Model.NationalityList" class="form-select">
+                    <option value="">Select Nationality</option>
+                </select>
+                <span asp-validation-for="NationalityId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="FullAddress" class="form-label">Full Address</label>
+                <textarea asp-for="FullAddress" class="form-control" rows="1"></textarea>
+                <span asp-validation-for="FullAddress" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="row mb-5" id="userAuthRow">
+            <div class="col-md-4">
+                <label asp-for="UserName" class="form-label">Email</label>
+                <input asp-for="UserName" type="email" class="form-control" placeholder="abc@xyz.com" autocomplete="off" />
+                <span asp-validation-for="UserName" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="UserPassword" class="form-label">Password</label>
+                <input asp-for="UserPassword" type="password" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="UserPassword" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4 d-none" id="assignUnder">
+                <label asp-for="AssignUnderUser" class="form-label">Assign Under</label>
+                <select asp-for="AssignUnderUser" asp-items="@Model.AssignUnderUserList" class="form-select">
+                </select>
+                <span asp-validation-for="AssignUnderUser" class="text-danger small"></span>
+            </div>
+        </div>
+        <div class="text-center mb-4" id="submitRow">
+            <button type="submit" class="btn btn-primary">Create User</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Cancel</a>
+        </div>
+    </form>
+</div>
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function () {
+            $('#branchId, #roleId, #personalRow1, #personalRow2, #personalRow3, #contactRow, #userAuthRow, #submitRow').addClass('d-none');
+
+           $('#organisationId').on('change', function () {
+            var orgId = $(this).val();
+
+            $('#BranchId').empty().append('<option value="">Select Branch</option>');
+            $('#Role').empty().append('<option value="">Select Role</option>');
+            $('#AssignUnderUser').empty().append('<option value="">Select</option>');
+            $('#branchId, #roleId, #personalRow1, #personalRow2, #personalRow3, #contactRow, #userAuthRow, #submitRow').addClass('d-none');
+
+            if (!orgId) return;
+
+            $.ajax({
+                url: '@Url.Action("GetOrganisationMappings", "Account")',
+                type: 'GET',
+                data: { organisationId: orgId },
+                success: function (response) {
+                    if (response?.branches?.length > 0) {
+                        response.branches.forEach(branch => {
+                            $('#BranchId').append(`<option value="${branch.value}">${branch.text}</option>`);
+                        });
+                    }
+
+                    if (response?.roles?.length > 0) {
+                        response.roles.forEach(role => {
+                            $('#Role').append(`<option value="${role.value}">${role.text}</option>`);
+                        });
+                    }
+
+                    $('#branchId, #roleId, #personalRow1, #personalRow2, #personalRow3, #contactRow, #userAuthRow, #submitRow').removeClass('d-none');
+                },
+                error: function () {
+                    alert('Failed to load organisation mappings.');
+                }
+            });
+        });
+
+         
+            $('#Role').on('change', function () {
+            var selectedRole = $(this).val();
+            var orgId = $('#organisationId').val();
+
+            $('#AssignUnderUser').empty().append('<option value="">Choose to assign under -</option>');
+
+            if (!selectedRole || !orgId) {
+                $('#assignUnder').addClass('d-none');
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("GetAssignUnderUsers", "Account")', 
+                type: 'GET',
+                data: { organisationId: orgId, roleName: selectedRole },
+                success: function (response) {
+                    if (response?.length > 0) {
+                        response.forEach(user => {
+                            $('#AssignUnderUser').append(`<option value="${user.value}">${user.text}</option>`);
+                        });
+                        $('#assignUnder').removeClass('d-none');
+                    } else {
+                        $('#assignUnder').addClass('d-none');
+                    }
+                },
+                error: function () {
+                    alert('Failed to load Assign Under users.');
+                    $('#assignUnderOps').addClass('d-none');
+                }
+            });
+        });
+
+
+            // $('#Role').on('change', function () {
+            // var selectedRole = $(this).val()?.toLowerCase();
+
+            // if (selectedRole === 'agent') {
+            //     $('#assignUnderOps').removeClass('d-none');
+            // } else {
+            //     $('#assignUnderOps').addClass('d-none');
+            //     $('#SelectedOperationsUserId').val('');
+            // }
+
+            // Show tooltip if any
+            var tooltipList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipList.map(el => new bootstrap.Tooltip(el));
+        });
+    </script>
+}
+
+

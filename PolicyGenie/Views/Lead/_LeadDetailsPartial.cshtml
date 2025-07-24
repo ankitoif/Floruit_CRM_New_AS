@@ -1,0 +1,243 @@
+﻿@model OIF.Cams.Model.LeadVM.LeadDetailModel
+
+@{
+
+    var userRole = ViewBag.ActiveRole?.ToString().ToLower() ?? "agent";
+    bool isAdmin = userRole == "admin";
+    bool isOperations = userRole == "operations";
+    bool isAgent = userRole == "agent";
+}
+
+<!-- Lead Details Form -->
+<form id="subjectMatterForm">
+    <!-- Section: Customer Details -->
+    <h5>Customer Details</h5>
+    <div class="row">
+        <div class="col-md-6 mb-2">
+            <label>Product Ref No</label>
+            <input type="text" value="@Model.ProductRefNo" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Company Name</label>
+            <input type="text" value="@Model.CompanyName" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Primary Contact Person Name</label>
+            <input type="text" value="@Model.PrimaryContactPersonName" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Primary Contact Person Mobile</label>
+            <input type="text" value="@Model.PrimaryContactPersonMobile" class="form-control" readonly />
+        </div><div class="col-md-6 mb-2">
+            <label>Primary Contact Person Designation</label>
+            <input type="text" value="@Model.PrimaryContactPersonDesignation" class="form-control" readonly />
+        </div><div class="col-md-6 mb-2">
+            <label>Primary Contact Person Email</label>
+            <input type="text" value="@Model.PrimaryContactPersonEmail" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Primary Contact Person Dob</label>
+            <input type="date"
+                   value="@Model.PrimaryContactPersonDOB.ToString("yyyy-MM-dd")"
+                   class="form-control"
+                   readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Product</label>
+            <input type="text" value="@Model.Product" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Lead Source</label>
+            <input type="text" id="LeadSource" value="@Model.LeadSource" class="form-control" readonly />
+        </div>
+
+        <!-- Conditional Fields Based on Lead Source -->
+        <!-- Agency Section -->
+        <div id="agencySection" class="col-md-6 mb-2" style="display:none;">
+            <label>External Agency Name</label>
+            <input type="text" name="ExternalAgencyName" value="@Model.ExternalAgencyName" class="form-control" readonly />
+        </div>
+        <div id="agentSection" class="col-md-6 mb-2" style="display:none;">
+            <label>External Agent Name</label>
+            <input type="text" name="ExternalAgentName" value="@Model.ExternalAgentName" class="form-control" readonly />
+        </div>
+
+        <!-- Referral Section -->
+        <div id="referralSection" class="col-md-6 mb-2" style="display:none;">
+            <label>Referral Person Name</label>
+            <input type="text" name="ReferralPersonName" value="@Model.ReferralPersonName" class="form-control" readonly />
+        </div>
+    </div>
+
+    <!-- Section: Subject Matter Details -->
+    <hr />
+    <h5>Subject Matter Details</h5>
+    <div class="row">
+        <div class="col-md-6 mb-2">
+            <label>Agency / Referral</label>
+            <input type="text" name="AgencyReferral" value="@Model.AgencyReferral" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Name of the CSP Sales</label>
+            <input type="text" name="CSPSales" value="@Model.CSPSales" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Bank</label>
+            <select name="Bank" class="form-control" @(isAdmin || isOperations ? "disabled" : "")>
+                <option value="">Select</option>
+                @foreach (var bank in Model.AvailableBanks)
+                {
+                    <option value="@bank" selected="@(bank == Model.Bank)">@bank</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Introduction Date</label>
+            <input type="date"
+                   name="IntroductionDate" value="@(Model.IntroductionDate != default ? Model.IntroductionDate.ToString("yyyy-MM-dd") : DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd"))"
+                   class="form-control" @(isAdmin || isOperations ? "readonly" : "") />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Status</label>
+            <select name="Status" class="form-control" @(isAdmin || isAgent? "disabled" : "")>
+                <option value="">Select</option>
+                @foreach (var status in Model.AvailableStatuses)
+                {
+                    <option value="@status" selected="@(status == Model.Status)">@status</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Account Opened / Loan Disbursed Date</label>
+            <input type="date"
+                   name="AccountOpenedDate" id="AccountOpenedDate" class="form-control"
+                   value="@(Model.AccountOpenedDate != default ? Model.AccountOpenedDate.ToString("yyyy-MM-dd") : DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd"))"
+                   min="@DateOnly.FromDateTime(DateTime.Today.AddDays(-1)).ToString("yyyy-MM-dd")"
+                   @(isAdmin || isOperations ? "readonly" : "") />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Paid</label>
+            <select name="Paid" class="form-control" @(isAdmin || isOperations ? "disabled" : "")>
+                <option value="">Select</option>
+                <option value="Yes" selected="@(Model.Paid == "Yes")">Yes</option>
+                <option value="No" selected="@(Model.Paid == "No")">No</option>
+            </select>
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Amount</label>
+            <input type="number" name="Amount" value="@Model.Amount" class="form-control" @(isAdmin || isOperations ? "readonly" : "") />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Invoice No</label>
+            <input type="text" name="InvoiceNo" value="@Model.InvoiceNo" class="form-control" @(isAdmin || isOperations ? "readonly" : "") />
+        </div>
+    </div>
+
+    <!-- Section: Trade License -->
+    <hr />
+    <h5>Trade License Information</h5>
+    <div class="row">
+        <div class="col-md-6 mb-2">
+            <label>Trade License No</label>
+            <input type="text" name="TradeLicenseNo" value="@Model.TradeLicenseNo" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Trade License Expiry Date</label>
+            <input type="date" name="TradeLicenseExpDate" value="@Model.TradeLicenseExpDate.ToString("yyyy-MM-dd")" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>Trade License Document</label>
+            @if (!string.IsNullOrEmpty(Model.TradeLicensePath))
+            {
+                <a href="@Model.TradeLicensePath" target="_blank" class="btn btn-link">View Document</a>
+            }
+            else
+            {
+                <p class="form-text text-muted">No document uploaded</p>
+            }
+        </div>
+    </div>
+
+    <!-- Section: VAT Details -->
+    <hr />
+    <h5>VAT Details</h5>
+    <div class="row">
+        <div class="col-md-6 mb-2">
+            <label>VAT TRN No</label>
+            <input type="text" name="VATTrnNo" value="@Model.VATTrnNo" class="form-control" readonly />
+        </div>
+        <div class="col-md-6 mb-2">
+            <label>VAT Certificate</label>
+            @if (!string.IsNullOrEmpty(Model.VATCertificatePath))
+            {
+                <a href="@Model.VATCertificatePath" target="_blank" class="btn btn-link">View Certificate</a>
+            }
+            else
+            {
+                <p class="form-text text-muted">No certificate uploaded</p>
+            }
+        </div>
+    </div>
+
+    <!-- Section: Remarks -->
+    <div class="row mt-3">
+        <div class="col-md-12">
+            <label>Remarks</label>
+<textarea name="Remarks" class="form-control" rows="3" @(isAdmin ? "readonly" : "")>@Model.Remarks</textarea>
+        </div>
+    </div>
+    @* 
+    @if (!isAdmin)
+    {
+<div class="row mt-3">
+<div class="col-md-12 text-end">
+<button type="submit" class="btn btn-primary">Submit</button>
+</div>
+</div>
+    } *@
+</form>
+
+<script>
+    $(document).ready(function () {
+        const leadSource = $("#LeadSource").val().toLowerCase();
+
+        if (leadSource === "agency") {
+            $("#agencySection, #agentSection").show();
+        } else if (leadSource === "referral") {
+            $("#referralSection").show();
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('AccountOpenedDate');
+
+        if (dateInput) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            dateInput.min = yesterday.toISOString().split('T')[0];
+
+            dateInput.addEventListener('change', function() {
+                const selectedDate = new Date(this.value);
+                const minAllowedDate = new Date();
+                minAllowedDate.setDate(minAllowedDate.getDate() - 1);
+                minAllowedDate.setHours(0, 0, 0, 0);
+
+                if (selectedDate < minAllowedDate) {
+                    alert('Please select a date from yesterday or later.');
+                    this.value = '';
+                }
+            });
+
+            dateInput.addEventListener('paste', function(e) {
+                e.preventDefault();
+                alert('Pasting dates is not allowed. Please select a valid date.');
+                return false;
+            });
+
+            dateInput.addEventListener('keydown', function(e) {
+                e.preventDefault();
+                return false;
+            });
+        }
+    });
+</script>

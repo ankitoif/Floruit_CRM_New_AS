@@ -1,0 +1,65 @@
+﻿@using OIF.Cams.Model.ViewModels
+@model AssignRoleViewModel
+
+@{
+    ViewData["Title"] = "Assign Role";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-light text-secondary">
+            <h5 class="mb-0">Assign Additional Role</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="SearchUserRoles" method="post" class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label">Email <span class="text-danger">*</span></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+
+            @if (Model.AvailableRoles != null && Model.AvailableRoles.Any())
+            {
+                <form asp-action="SubmitRole" method="post" class="row g-3">
+                    <input type="hidden" asp-for="Email" />
+
+                    <div class="col-md-6">
+                        <label asp-for="SelectedRole" class="form-label">Select New Role <span class="text-danger">*</span></label>
+                        <select asp-for="SelectedRole" asp-items="Model.AvailableRoles" class="form-select"></select>
+                        <span asp-validation-for="SelectedRole" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success">Submit</button>
+                    </div>
+                </form>
+            }
+
+            @if (Model.AssignedRoles != null && Model.AssignedRoles.Any())
+            {
+                <div class="mt-4">
+                    <h6>Already Assigned Roles:</h6>
+                    <ul>
+                        @foreach (var role in Model.AssignedRoles)
+                        {
+                            <li>@role</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success mt-3">@TempData["Success"]</div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
