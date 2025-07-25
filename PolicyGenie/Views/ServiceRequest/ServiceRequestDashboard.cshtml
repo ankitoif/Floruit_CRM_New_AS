@@ -69,7 +69,7 @@
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h5 class="mb-0 fw-semibold">Lead Created Log</h5>
 
-        @if (Model.Leads != null && Model.Leads.Any())
+        @if (Model.Leads != null && Model.Leads.Any() && activeRole!="Agent")
         {
             <a asp-action="DownloadServiceRequestReport"
                asp-route-dashboardType="@Model.DashboardType"
@@ -79,12 +79,16 @@
         }
         else
         {
-            <!-- Disabled link with tooltip -->
-            <span title="No records available to download">
-                <a class="btn btn-sm btn-success disabled" aria-disabled="true" tabindex="-1">
-                    <i class="fa fa-download me-1"></i> Download Report
-                </a>
-            </span>
+            if (activeRole !="Agent")
+            {
+                <!-- Disabled link with tooltip -->
+                <span title="No records available to download">
+                    <a class="btn btn-sm btn-success disabled" aria-disabled="true" tabindex="-1">
+                        <i class="fa fa-download me-1"></i> Download Report
+                    </a>
+                </span>
+            }
+           
         }
     </div>
 
@@ -94,7 +98,7 @@
         <thead>
             <tr>
                 <th style="display:none;">Lead ID</th>
-                <th>Product Reference Number</th>
+                <th>Reference Number</th>
                 <th>Company Name</th>
                 <th>Lead Source</th>
                 <th>Lead Type</th>

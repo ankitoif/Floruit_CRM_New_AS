@@ -163,6 +163,19 @@ namespace PolicyGenie.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<JsonResult> GetAgencies()
+        {
+            var agencies = await _ILeadAutoMapper.GetAllAgencies();
+            return Json(agencies);
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetAgentsByAgency(int agencyId)
+        {
+            var agents = await _ILeadAutoMapper.GetAgentsByAgency(agencyId);
+            return Json(agents);
+        }
 
     }
 }

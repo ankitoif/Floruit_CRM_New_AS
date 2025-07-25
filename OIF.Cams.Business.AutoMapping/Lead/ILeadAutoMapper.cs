@@ -14,5 +14,7 @@ namespace OIF.Cams.Business.AutoMapping.Lead
         Task<LeadViewModel> GetLeadByTradeLicense(string tradeLicenseNumber);
         Task<LeadDetailModel> GetLeadByProductRefNo(string productRefNo);
         Task<bool> UpdateLeadDetails(LeadDetailModel model);
+        Task<List<AgencyModel>> GetAllAgencies();
+        Task<List<AgentModel>> GetAgentsByAgency(int agencyId);
     }
 }

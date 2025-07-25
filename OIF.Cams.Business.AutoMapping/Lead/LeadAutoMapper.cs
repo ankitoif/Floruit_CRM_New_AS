@@ -58,5 +58,31 @@ namespace OIF.Cams.Business.AutoMapping.Lead
             return await _ILeadRepo.UpdateLeadDetails(model);
         }
 
+        public async Task<List<AgencyModel>> GetAllAgencies()
+        {
+            try
+            {
+                return await _ILeadRepo.GetAllAgencies();
+            }
+            catch (Exception ex)
+            {
+                _ILogger.LogError(ex, CrossCutting_Constants.AMPolicy);
+                return new List<AgencyModel>();
+            }            
+        }
+
+        public async Task<List<AgentModel>> GetAgentsByAgency(int agencyId)
+        {
+            try
+            {
+                return await _ILeadRepo.GetAgentsByAgency(agencyId);
+            }
+            catch (Exception ex)
+            {
+                _ILogger.LogError(ex, CrossCutting_Constants.AMPolicy);
+                return new List<AgentModel>();
+            }
+        }
+
     }
 }

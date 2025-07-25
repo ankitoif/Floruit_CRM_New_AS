@@ -83,7 +83,7 @@
         </div>
         <div class="col-md-6 mb-2">
             <label>Bank</label>
-            <select name="Bank" class="form-control" @(isAdmin || isOperations ? "disabled" : "")>
+            <select name="Bank" class="form-control" @(isAdmin ? "disabled" : "")>
                 <option value="">Select</option>
                 @foreach (var bank in Model.AvailableBanks)
                 {
@@ -113,11 +113,11 @@
                    name="AccountOpenedDate" id="AccountOpenedDate" class="form-control"
                    value="@(Model.AccountOpenedDate != default ? Model.AccountOpenedDate.ToString("yyyy-MM-dd") : DateOnly.FromDateTime(DateTime.Today).ToString("yyyy-MM-dd"))"
                    min="@DateOnly.FromDateTime(DateTime.Today.AddDays(-1)).ToString("yyyy-MM-dd")"
-                   @(isAdmin || isOperations ? "readonly" : "") />
+                   @(isAdmin ? "readonly" : "") />
         </div>
         <div class="col-md-6 mb-2">
             <label>Paid</label>
-            <select name="Paid" class="form-control" @(isAdmin || isOperations ? "disabled" : "")>
+            <select name="Paid" class="form-control" @(isAdmin ? "disabled" : "")>
                 <option value="">Select</option>
                 <option value="Yes" selected="@(Model.Paid == "Yes")">Yes</option>
                 <option value="No" selected="@(Model.Paid == "No")">No</option>
@@ -125,11 +125,11 @@
         </div>
         <div class="col-md-6 mb-2">
             <label>Amount</label>
-            <input type="number" name="Amount" value="@Model.Amount" class="form-control" @(isAdmin || isOperations ? "readonly" : "") />
+            <input type="number" name="Amount" value="@Model.Amount" class="form-control" @(isAdmin ? "readonly" : "") />
         </div>
         <div class="col-md-6 mb-2">
             <label>Invoice No</label>
-            <input type="text" name="InvoiceNo" value="@Model.InvoiceNo" class="form-control" @(isAdmin || isOperations ? "readonly" : "") />
+            <input type="text" name="InvoiceNo" value="@Model.InvoiceNo" class="form-control" @(isAdmin ? "readonly" : "") />
         </div>
     </div>
 

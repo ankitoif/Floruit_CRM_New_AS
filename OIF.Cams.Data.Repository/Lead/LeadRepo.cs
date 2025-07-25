@@ -132,6 +132,11 @@ namespace OIF.Cams.Data.Repository.Lead
                 // 3. Format new ProductRefNo with prefix + padded number
                 string newRefNo = prefix + newNumber.ToString("D4"); // e.g., "AC0003"
 
+                long agencyId = Convert.ToInt64(model.ExternalAgencyName);
+                var ExternalAgencyName = await _context.TblMstBranches.AsNoTracking().Where(x => x.BranchId == agencyId).Select(x => x.BranchName).FirstOrDefaultAsync();
+                long agentNodeId = Convert.ToInt64(model.ExternalAgentName);
+                var ExternalAgentName = await _context.TblUserDetails.AsNoTracking().Where(x => x.NodeId == agentNodeId).Select(x => x.FirstName + " " + x.LastName).FirstOrDefaultAsync();
+
                 // 4. Assign to lead
                 lead.ProductRefNo = newRefNo;
                 lead.CustomerId = cust.CustomerId;
@@ -149,9 +154,9 @@ namespace OIF.Cams.Data.Repository.Lead
                 lead.ModifiedDateTime = DateTime.Now;
                 lead.IsValid = true;
                 lead.CreatedBy = model.CurrentUser;
-                lead.StatusId = 2;
-                lead.ExtAgencyName = model.ExternalAgencyName;
-                lead.ExtAgentName = model.ExternalAgentName;
+                lead.StatusId = 2;              
+                lead.ExtAgencyName = ExternalAgencyName;
+                lead.ExtAgentName = ExternalAgentName;
                 lead.ReferralPersonName = model.ReferralPersonName;
                 if (model.LeadSource == "Agency")
                 {
@@ -462,5 +467,54 @@ namespace OIF.Cams.Data.Repository.Lead
             }
         }
 
-    }
+        public async Task<List<AgencyModel>> GetAllAgencies()
+        {
+            try
+            {
+                var result = await (
+                           from a in _context.TblMstBranches.AsNoTracking()
+                           join b in _context.TblMstCustomerOrgs.AsNoTracking()
+                               on a.CustomerOrgId equals b.CustomerOrgId
+                           where b.CustomerOrgName == "External Agency"
+                           select new AgencyModel
+                           {
+                               CustomerOrgId = a.BranchId,
+                               AgencyName = a.BranchName
+                           }).ToListAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _ILogger.LogError(ex, "Error occurred while fetching Agencies");
+                return new List<AgencyModel>();
+            }
+        }
+
+        public async Task<List<AgentModel>> GetAgentsByAgency(int agencyId)
+        {
+            try
+            {
+                var result = await (
+                          from a in _context.TblUserDetails.AsNoTracking()
+                          join b in _context.TblMstCustomerOrgs.AsNoTracking()
+                              on a.CustomerOrgId equals b.CustomerOrgId
+                          where b.CustomerOrgName == "External Agency" && agencyId == a.BranchId
+                          select new AgentModel
+                          {
+                              NodeId = a.NodeId,
+                              AgentName = a.FirstName + " " + a.LastName,
+                          }).ToListAsync();
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _ILogger.LogError(ex, "Error occurred while fetching Agencies");
+                return new List<AgentModel>();
+            }
+        }
+
+
+     }
 }

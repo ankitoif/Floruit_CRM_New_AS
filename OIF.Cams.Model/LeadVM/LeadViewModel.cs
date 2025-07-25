@@ -39,6 +39,8 @@ namespace OIF.Cams.Model.LeadVM
         public string ExternalAgencyName { get; set; }
         public string ExternalAgentName { get; set; }
         public string ReferralPersonName { get; set; }
+        public string ExternalAgencyId { get; set; } 
+        public string ExternalAgentId { get; set; }
     }
 
     public class ContactPerson
@@ -94,5 +96,18 @@ namespace OIF.Cams.Model.LeadVM
         "Accessing with Bank", "Account opened", "Account declined"
     };
 
+    }
+
+
+    public class AgencyModel
+    {
+        public long? CustomerOrgId { get; set; }
+        public string AgencyName { get; set; }
+    }
+
+    public class AgentModel
+    {
+        public long? NodeId { get; set; }
+        public string AgentName { get; set; }
     }
 }
