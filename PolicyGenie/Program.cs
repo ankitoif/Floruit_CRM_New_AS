@@ -16,8 +16,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<CamsDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<CamsDbContext>(options =>options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
@@ -78,7 +77,9 @@ using (var scope = app.Services.CreateScope())
     var context = services.GetRequiredService<CamsDbContext>();
     if (!context.Users.Any()) // Or any other check
     {
-        await SeedService.SeedDataBase(services);
+        //await SeedService.SeedDataBase(services);
+        // Run async code in sync context
+        SeedService.SeedDataBase(services).GetAwaiter().GetResult();
     }
 }
 // Configure the HTTP request pipeline.

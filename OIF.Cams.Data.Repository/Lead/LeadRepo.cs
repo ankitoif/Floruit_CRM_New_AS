@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OIF.Cams.Data.DAC;
 using OIF.Cams.Data.DAC.AppDbContext;
@@ -171,7 +172,7 @@ namespace OIF.Cams.Data.Repository.Lead
                 await _context.TblLeads.AddAsync(lead);
                 await _context.SaveChangesAsync();
 
-                // Create an audit log entry for the lead
+                // Create an audit log entry for the lead for remarks
                 TblLeadAuditLog leadAuditLog = new TblLeadAuditLog();
                 leadAuditLog.LeadId = lead.LeadId;
                 leadAuditLog.Remarks = lead.Remarks;
@@ -180,6 +181,63 @@ namespace OIF.Cams.Data.Repository.Lead
                 leadAuditLog.IsValid = true;
                 await _context.TblLeadAuditLogs.AddAsync(leadAuditLog);
                 await _context.SaveChangesAsync();
+
+
+                //For Saving data to tblCustomerDoc
+
+                // 2. Load document types from the DB
+                var docTypes = await _context.TblmstdocumentTypes.ToListAsync();
+
+                // 3. Map document names to model files
+                var fileMap = new Dictionary<string, IFormFile>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["Trade License"] = model.TradeLicense,
+                    ["Memorandum of Association (MOA)"] = model.MOA,
+                    ["Tenancy Contract"] = model.TenancyContract,
+                    ["Share Certificate"] = model.ShareCertificate,
+                    ["Certificate of Incorporation / Certificate of Formation"] = model.CertificateOfIncorporation,
+                    ["KYC"] = model.KYC,
+                    ["Passport Front"] = model.PassportFront,
+                    ["Passport Back"] = model.PassportBack,
+                    ["EmiratesID Front"] = model.EmiratesIDFront,
+                    ["EmiratesID Back"] = model.EmiratesIDBack,
+                    ["Bank Statement"] = model.BankStatement,
+                    ["Others Documents"] = null, // handle manually if needed
+                    ["VAT Certificate"] = model.VATCertificate
+                };
+
+                var customerDocs = new List<TblCustomerDoc>();
+
+                foreach (var docType in docTypes)
+                {
+                    if (fileMap.TryGetValue(docType.DocumentName.Trim(), out var formFile) && formFile != null && formFile.Length > 0)
+                    {
+                        var fileName = $"{docType.DocumentName.Replace(" ", "_")}_{Guid.NewGuid()}{Path.GetExtension(formFile.FileName)}";
+                        var filePath = Path.Combine(uploadsRootFolder, fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await formFile.CopyToAsync(stream);
+                        }
+
+                        customerDocs.Add(new TblCustomerDoc
+                        {
+                            CustomerId = cust.CustomerId,
+                            DocumentTypeId = docType.DocumentTypeId,
+                            DocumentDescription = docType.DocumentName,
+                            DocumentPath = $"uploads/{fileName}",
+                            IsValid = true,
+                            CreatedDateTime = DateTime.Now
+                        });
+                    }
+                }
+
+                // 4. Save documents to DB
+                if (customerDocs.Any())
+                {
+                    await _context.TblCustomerDocs.AddRangeAsync(customerDocs);
+                    await _context.SaveChangesAsync();
+                }
 
 
                 return true;
@@ -270,6 +328,7 @@ namespace OIF.Cams.Data.Repository.Lead
                     join c in _context.TblContactPeople.AsNoTracking() on b.CustomerId equals c.CustomerId
                     join d in _context.TblmstProductStatuses.AsNoTracking() on a.StatusId equals d.StatusId
                     where b.TradeLicenseNo == tradeLicenseNumber && a.IsValid == true
+                    orderby a.CreatedDateTime descending
 
                     select new LeadViewModel
                     {
@@ -428,6 +487,16 @@ namespace OIF.Cams.Data.Repository.Lead
                     if (model.activeUserRole == "Operations")
                     {
                         existingLead.StatusId = statusID;
+                        existingLead.BankId = BankID;
+                        existingLead.AccountOpenedOrLoanDisbursedDate = model.AccountOpenedDate;
+                        existingLead.Paid = string.Equals(model.Paid, "Yes", StringComparison.OrdinalIgnoreCase);
+                        existingLead.Amount = model.Amount;
+                        existingLead.InvoiceNo = model.InvoiceNo;
+                        existingLead.ModifiedDateTime = DateTime.Now;
+                        existingLead.ModifiedBy = model.currentUser;
+                        existingLead.Risk = model.Risk;
+                        
+
                         existingLead.Remarks = model.Remarks;
                         _context.TblLeads.Update(existingLead);
                     }
@@ -443,6 +512,7 @@ namespace OIF.Cams.Data.Repository.Lead
                         existingLead.ModifiedDateTime = DateTime.Now;
                         existingLead.ModifiedBy = model.currentUser;
                         existingLead.Remarks = model.Remarks;
+                        existingLead.Risk = model.Risk;
                         _context.TblLeads.Update(existingLead);
                     }
 
@@ -454,6 +524,57 @@ namespace OIF.Cams.Data.Repository.Lead
                         ModifiedDateTime = DateTime.Now
                     };
                     await _context.TblLeadAuditLogs.AddAsync(newRemark);
+
+
+
+                    // Save uploaded documents if any
+                    var uploadsRootFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "lead-docs");
+                    // Ensure the uploads/lead-docs folder exists
+                    if (!Directory.Exists(uploadsRootFolder))
+                    {
+                        Directory.CreateDirectory(uploadsRootFolder);
+                    }
+
+                    if (model.AdditionalDocuments != null && model.AdditionalDocuments.Any())
+                    {
+                        foreach (var doc in model.AdditionalDocuments)
+                        {
+                            if (doc.File != null && doc.File.Length > 0)
+                            {
+                                string uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(doc.File.FileName)}";
+                                string filePath = Path.Combine(uploadsRootFolder, uniqueFileName);
+
+                                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                                {
+                                    await doc.File.CopyToAsync(fileStream);
+                                }
+
+                                var docEntity = new TblLeadDocument
+                                {
+                                    LeadId = existingLead.LeadId,
+                                    CustomerId = existingLead.CustomerId ?? 0,
+                                    DocumentTypeId = await _context.TblmstdocumentTypes
+                                        .Where(d => d.DocumentName == doc.DocumentType)
+                                        .Select(d => d.DocumentTypeId)
+                                        .FirstOrDefaultAsync(),
+
+                                    DocumentDescription = doc.Description,
+                                    DocumentPath = "/uploads/lead-docs/" + uniqueFileName,
+                                    IsValid = true,
+                                    CreatedDateTime = DateTime.Now,
+                                    ModifiedDateTime = DateTime.Now
+                                };
+
+                                _context.TblLeadDocuments.Add(docEntity);
+                            }
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
+
+
+
 
                     await _context.SaveChangesAsync();
                     return true;

@@ -23,8 +23,26 @@ namespace PolicyGenie.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateLead(LeadViewModel model)
         {
-            if (/*ModelState.IsValid && */model.TradeLicense != null)
+            if (model.TradeLicense != null || model.TradeLicensePathFile !=null)
             {
+                if (model.TradeLicensePathFile !=null)
+                {
+                    if (!string.IsNullOrEmpty(model.TradeLicensePathFile))
+                    {
+                        string webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                        string fullPath = Path.Combine(webRootPath, model.TradeLicensePathFile.Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            var fileStream = new FileStream(fullPath, FileMode.Open, FileAccess.Read);
+                            model.TradeLicense = new FormFile(fileStream, 0, fileStream.Length, "TradeLicense", Path.GetFileName(fullPath));
+                        }
+                    }
+
+
+                    //IFormFile TradeLicPath = model.TradeLicensePathFile;
+                    //model.TradeLicense = TradeLicPath;
+                }
                 string currentUser = HttpContext.User.Identity.Name;
                 if (currentUser != null)
                 {
@@ -126,7 +144,7 @@ namespace PolicyGenie.Controllers
 
 
         [HttpPost]
-        public async Task<JsonResult> UpdateLeadDetails([FromBody] LeadDetailModel model)
+        public async Task<JsonResult> UpdateLeadDetails(LeadDetailModel model)
         {
             try
             {
@@ -139,6 +157,7 @@ namespace PolicyGenie.Controllers
                 }
                 var selectedBank = model.Bank;
                 var selectedStatus = model.Status;
+                var selectedRisk = model.Risk;
                 // Validate the model
                 //if (!ModelState.IsValid)
                 //{
@@ -177,5 +196,24 @@ namespace PolicyGenie.Controllers
             return Json(agents);
         }
 
+
+        [HttpGet]
+        public IActionResult DownloadDocument(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+                return BadRequest("Invalid file path.");
+
+            var relativePath = filePath.TrimStart('/').Replace("\\", "/");
+            var absolutePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relativePath);
+
+            if (!System.IO.File.Exists(absolutePath))
+                return NotFound("File not found.");
+
+            var fileBytes = System.IO.File.ReadAllBytes(absolutePath);
+            var contentType = "application/octet-stream";
+            var fileName = Path.GetFileName(absolutePath);
+
+            return File(fileBytes, contentType, fileName);
+        }
     }
 }

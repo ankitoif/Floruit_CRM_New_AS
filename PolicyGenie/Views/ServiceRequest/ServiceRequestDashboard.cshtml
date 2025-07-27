@@ -215,32 +215,56 @@
             }
         }
 
-          function submitSubjectMatter() {
+        //   function submitSubjectMatter() {
+        //     const form = document.getElementById('subjectMatterForm');
+        //     const formData = new FormData(form);
+
+        //     const jsonData = {};
+        //     formData.forEach((value, key) => {
+        //         jsonData[key] = value;
+        //     });
+
+        //     jsonData.ProductRefNo = document.getElementById('leadIdTitle').innerText;
+
+        //     fetch('/Lead/UpdateLeadDetails', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify(jsonData)
+        //     })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //           if (data.success) {
+        //      alert('Saved successfully!');
+        //      location.reload(); // Reloads the current page
+        //  } else {
+        //      alert('Error: ' + (data.message || 'Failed to save.'));
+        //  }
+        //     })
+        //     .catch(() => {
+        //         alert('An error occurred while saving.');
+        //     });
+        // }
+
+        function submitSubjectMatter() {
             const form = document.getElementById('subjectMatterForm');
             const formData = new FormData(form);
 
-            const jsonData = {};
-            formData.forEach((value, key) => {
-                jsonData[key] = value;
-            });
-
-            jsonData.ProductRefNo = document.getElementById('leadIdTitle').innerText;
+            formData.append("ProductRefNo", document.getElementById('leadIdTitle').innerText);
 
             fetch('/Lead/UpdateLeadDetails', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(jsonData)
+                body: formData // ✅ Send formData directly
             })
             .then(response => response.json())
             .then(data => {
-                  if (data.success) {
-             alert('Saved successfully!');
-             location.reload(); // Reloads the current page
-         } else {
-             alert('Error: ' + (data.message || 'Failed to save.'));
-         }
+                if (data.success) {
+                    alert('Saved successfully!');
+                    location.reload();
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to save.'));
+                }
             })
             .catch(() => {
                 alert('An error occurred while saving.');

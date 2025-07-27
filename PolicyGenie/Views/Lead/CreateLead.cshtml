@@ -11,9 +11,13 @@
         <div class="card-body">
             @using (Html.BeginForm("CreateLead", "Lead", FormMethod.Post, new { enctype = "multipart/form-data", id = "leadForm" }))
             {
-              @*   <input type="hidden" id="ExternalAgencyName" name="ExternalAgencyName" value="@Model.ExternalAgencyName" />
-                <input type="hidden" id="ExternalAgentName" name="ExternalAgentName" value="@Model.ExternalAgentName" /> *@
                 <div class="row g-3">
+
+                    <!-- Trade License Number -->
+                    <div class="col-12 col-md-6">
+                        <label class="form-label">Trade License Number <span class="text-danger">*</span></label>
+                        <input type="text" name="TradeLicenseNumber" id="tradeLicenseNumber" class="form-control" required>
+                    </div>
 
                     <!-- Product -->
                     <div class="col-12 col-md-6">
@@ -25,20 +29,144 @@
                         </select>
                     </div>
 
-                    <!-- Upload Trade License -->
+                    @*        <!-- Upload Trade License -->
                     <div class="col-12 col-md-6">
                         <label>Upload Trade License <span class="text-danger">*</span></label>
                         <input type="file" name="TradeLicense" class="form-control" required>
                         <a id="tradeLicenseDownload" href="#" target="_blank" class="btn btn-sm btn-outline-primary d-none mb-2">
                             <i class="bi bi-download"></i> Download Trade License
                         </a>
+                    </div> *@
+
+                    <!-- Upload Trade License -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Trade License <span class="text-danger">*</span></label>
+                        <input type="file" name="TradeLicense" class="form-control" id="tradeLicenseInput" required>
+                        <input type="hidden" name="TradeLicensePathFile" id="tradeLicensePathHidden" value="" />
+
+
+                        <!-- Download link (initially hidden) -->
+                        <a id="tradeLicenseDownload" href="#" target="_blank" class="btn btn-sm btn-outline-primary d-none mb-2">
+                            <i class="bi bi-download"></i> Download Trade License
+                        </a>
                     </div>
 
-                    <!-- Trade License Number -->
+
+
+
+                    <!-- MOA -->
                     <div class="col-12 col-md-6">
-                        <label class="form-label">Trade License Number <span class="text-danger">*</span></label>
-                        <input type="text" name="TradeLicenseNumber" id="tradeLicenseNumber" class="form-control" required>
+                        <label>Upload MOA <span class="text-danger">*</span></label>
+                        <input type="file" name="MOA" class="form-control" id="moaInput" required>
+                        <input type="hidden" name="MOAPath" id="moaPathHidden" />
+                        <a id="moaDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download MOA
+                        </a>
                     </div>
+
+                    <!-- Tenancy Contract -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Tenancy Contract <span class="text-danger">*</span></label>
+                        <input type="file" name="TenancyContract" class="form-control" id="tenancyContractInput" required>
+                        <input type="hidden" name="TenancyContractPath" id="tenancyContractPathHidden" />
+                        <a id="tenancyContractDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download Tenancy Contract
+                        </a>
+                    </div>
+
+                    <!-- Share Certificate -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Share Certificate <span class="text-danger">*</span></label>
+                        <input type="file" name="ShareCertificate" class="form-control" id="shareCertificateInput" required>
+                        <input type="hidden" name="ShareCertificatePath" id="shareCertificatePathHidden" />
+                        <a id="shareCertificateDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download Share Certificate
+                        </a>
+                    </div>
+
+                    <!-- Certificate of Incorporation -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Certificate of Incorporation <span class="text-danger">*</span></label>
+                        <input type="file" name="CertificateOfIncorporation" class="form-control" id="certificateOfIncorporationInput" required>
+                        <input type="hidden" name="CertificateOfIncorporationPath" id="certificateOfIncorporationPathHidden" />
+                        <a id="certificateOfIncorporationDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download Certificate
+                        </a>
+                    </div>
+
+                    <!-- KYC -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload KYC <span class="text-danger">*</span></label>
+                        <input type="file" name="KYC" class="form-control" id="kycInput" required>
+                        <input type="hidden" name="KYCPath" id="kycPathHidden" />
+                        <a id="kycDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download KYC
+                        </a>
+                    </div>
+
+                    <!-- Passport Front -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Passport (Front) <span class="text-danger">*</span></label>
+                        <input type="file" name="PassportFront" class="form-control" id="passportFrontInput" required>
+                        <input type="hidden" name="PassportFrontPath" id="passportFrontPathHidden" />
+                        <a id="passportFrontDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download Passport Front
+                        </a>
+                    </div>
+
+                    <!-- Passport Back -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Passport (Back) <span class="text-danger">*</span></label>
+                        <input type="file" name="PassportBack" class="form-control" id="passportBackInput" required>
+                        <input type="hidden" name="PassportBackPath" id="passportBackPathHidden" />
+                        <a id="passportBackDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download Passport Back
+                        </a>
+                    </div>
+
+                    <!-- Emirates ID Front -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Emirates ID (Front) <span class="text-danger">*</span></label>
+                        <input type="file" name="EmiratesIDFront" class="form-control" id="emiratesIDFrontInput" required>
+                        <input type="hidden" name="EmiratesIDFrontPath" id="emiratesIDFrontPathHidden" />
+                        <a id="emiratesIDFrontDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download Emirates ID Front
+                        </a>
+                    </div>
+
+                    <!-- Emirates ID Back -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Emirates ID (Back) <span class="text-danger">*</span></label>
+                        <input type="file" name="EmiratesIDBack" class="form-control" id="emiratesIDBackInput" required>
+                        <input type="hidden" name="EmiratesIDBackPath" id="emiratesIDBackPathHidden" />
+                        <a id="emiratesIDBackDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download Emirates ID Back
+                        </a>
+                    </div>
+
+                    <!-- Bank Statement -->
+                    <div class="col-12 col-md-6">
+                        <label>Upload Bank Statement <span class="text-danger">*</span></label>
+                        <input type="file" name="BankStatement" class="form-control" id="bankStatementInput" required>
+                        <input type="hidden" name="BankStatementPath" id="bankStatementPathHidden" />
+                        <a id="bankStatementDownload" href="#" class="btn btn-sm btn-outline-primary d-none mb-2" target="_blank">
+                            <i class="bi bi-download"></i> Download Bank Statement
+                        </a>
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                     <div class="col-12 col-md-6">
                         <label>Upload VAT Certificate @* <span class="text-danger">*</span> *@</label>
@@ -120,17 +248,6 @@
                         </select>
                     </div>
 
-@*                     <!-- Conditional Fields -->
-                    <div id="agencyFields" class="row g-3 d-none">
-                        <div class="col-md-6">
-                            <label class="form-label">External Agency Name <span class="text-danger">*</span></label>
-                            <input type="text" name="ExternalAgencyName" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">External Agent Name <span class="text-danger">*</span></label>
-                            <input type="text" name="ExternalAgentName" class="form-control">
-                        </div>
-                    </div> *@
 
                     <div id="agencyFields" class="row g-3 d-none">
                         <div class="col-md-6">
@@ -180,512 +297,454 @@
 
 @section Scripts {
     <script>
-          let contactPersonIndex = 1;
+                  let contactPersonIndex = 1;
 
-         function updateContactPersonRows() {
-             const rows = document.querySelectorAll('.contact-person-row');
+                 function updateContactPersonRows() {
+                     const rows = document.querySelectorAll('.contact-person-row');
 
-             rows.forEach((row, i) => {
-                 const nameInput = row.querySelector('input[placeholder="Name"]');
-                 const mobileInput = row.querySelector('input[placeholder="Mobile"]');
-                 const emailInput = row.querySelector('input[placeholder="Email"]');
-                 const designationInput = row.querySelector('input[placeholder="Designation"]');
-                 const dobInput = row.querySelector('input[placeholder="DOB"]');
-                 const label = row.querySelector('.contact-person-label');
+                     rows.forEach((row, i) => {
+                         const nameInput = row.querySelector('input[placeholder="Name"]');
+                         const mobileInput = row.querySelector('input[placeholder="Mobile"]');
+                         const emailInput = row.querySelector('input[placeholder="Email"]');
+                         const designationInput = row.querySelector('input[placeholder="Designation"]');
+                         const dobInput = row.querySelector('input[placeholder="DOB"]');
+                         const label = row.querySelector('.contact-person-label');
 
-                 if (nameInput) nameInput.name = `ContactPersons[${i}].Name`;
-                 if (mobileInput) mobileInput.name = `ContactPersons[${i}].Mobile`;
-                 if (emailInput) emailInput.name = `ContactPersons[${i}].Email`;
-                 if (designationInput) designationInput.name = `ContactPersons[${i}].Designation`;
-                 if (dobInput) dobInput.name = `ContactPersons[${i}].ContactPersonDOB`;
-                 if (label) label.textContent = `Contact Person ${i + 1}`;
-             });
-         }
-
-         function addContactPersonRow(autoUpdate = true) {
-             const container = document.getElementById('contactPersonContainer');
-             const row = document.createElement('div');
-             row.classList.add('row', 'g-2', 'contact-person-row', 'mt-2');
-
-            const today = new Date().toISOString().split('T')[0];
-
-             row.innerHTML = `
-                 <div class="col-12 contact-person-label fw-bold mb-1">Contact Person</div>
-                 <div class="col-md-3">
-                     <input type="text" class="form-control" placeholder="Name" required>
-                 </div>
-                 <div class="col-md-3">
-                     <input type="text" class="form-control" placeholder="Mobile" required>
-                 </div>
-                 <div class="col-md-3">
-                     <input type="text" class="form-control" placeholder="Email" required>
-                 </div>
-                 <div class="col-md-3">
-                     <input type="text" class="form-control" placeholder="Designation">
-                 </div>
-                 <div class="col-md-3">
-                              <input type="date" class="form-control dob-field" max="${today}" placeholder="DOB">
-                 </div>
-
-                 <div class="col-md-1 d-flex">
-                     <button type="button" class="btn btn-sm btn-outline-success me-1" onclick="addContactPersonRow()">
-                         <i class="bi bi-plus-lg"></i>
-                     </button>
-                     <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeContactPersonRow(this)">
-                           <i class="bi bi-trash"></i>
-                     </button>
-                 </div>
-             `;
-
-             container.appendChild(row);
-
-             // THIS is what fixes the problem!
-             if (autoUpdate) updateContactPersonRows();
-         }
-
-                 function removeContactPersonRow(button) {
-                     const row = button.closest('.contact-person-row');
-                     row.remove();
-                     updateContactPersonRows();
-                 }
-
-                 // Call on load to initialize names correctly
-                 document.addEventListener("DOMContentLoaded", updateContactPersonRows);
-
-
-
-
-                 async function loadLeadDetails(productRefNo) {
-                     try {
-                         // Show loading indicator if needed
-                         $('#leadDetailModal .modal-body').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p>Loading details...</p></div>');
-
-                         // Load the partial view
-                         const response = await fetch(`/Lead/GetLeadDetails?productRefNo=${encodeURIComponent(productRefNo)}`);
-                         const html = await response.text();
-
-                         // Update the modal content
-                         $('#leadDetailModal .modal-body').html(html);
-
-                         // Set the title
-                         document.getElementById("leadIdTitle").innerText = productRefNo;
-
-                         // Show the modal
-                         const modal = new bootstrap.Modal(document.getElementById('leadDetailModal'));
-                         modal.show();
-                     } catch (error) {
-                         console.error('Error loading lead details:', error);
-                         $('#leadDetailModal .modal-body').html('<div class="alert alert-danger">Error loading lead details. Please try again.</div>');
-                     }
-                 }
-
-
-                 function submitSubjectMatter() {
-                     const form = document.getElementById('subjectMatterForm');
-                     const formData = new FormData(form);
-
-                     const jsonData = {};
-                     formData.forEach((value, key) => {
-                         jsonData[key] = value;
-                     });
-
-                     jsonData.ProductRefNo = document.getElementById('leadIdTitle').innerText;
-
-                     fetch('/Lead/UpdateLeadDetails', {
-                         method: 'POST',
-                         headers: {
-                             'Content-Type': 'application/json',
-                         },
-                         body: JSON.stringify(jsonData)
-                     })
-                     .then(response => response.json())
-                     .then(data => {
-                           if (data.success) {
-                      alert('Saved successfully!');
-                      location.reload(); // Reloads the current page
-                  } else {
-                      alert('Error: ' + (data.message || 'Failed to save.'));
-                  }
-                     })
-                     .catch(() => {
-                         alert('An error occurred while saving.');
+                         if (nameInput) nameInput.name = `ContactPersons[${i}].Name`;
+                         if (mobileInput) mobileInput.name = `ContactPersons[${i}].Mobile`;
+                         if (emailInput) emailInput.name = `ContactPersons[${i}].Email`;
+                         if (designationInput) designationInput.name = `ContactPersons[${i}].Designation`;
+                         if (dobInput) dobInput.name = `ContactPersons[${i}].ContactPersonDOB`;
+                         if (label) label.textContent = `Contact Person ${i + 1}`;
                      });
                  }
 
-                 // Helper function to show toast notifications
-                 function showToast(message, type = 'success') {
-                     // Implement your toast notification here
-                     // Example using Bootstrap toasts:
-                     const toast = new bootstrap.Toast(document.getElementById('notificationToast'));
-                     document.getElementById('toastMessage').textContent = message;
-                     document.getElementById('notificationToast').classList.remove('bg-success', 'bg-danger');
-                     document.getElementById('notificationToast').classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
-                     toast.show();
+                 function addContactPersonRow(autoUpdate = true) {
+                     const container = document.getElementById('contactPersonContainer');
+                     const row = document.createElement('div');
+                     row.classList.add('row', 'g-2', 'contact-person-row', 'mt-2');
+
+                    const today = new Date().toISOString().split('T')[0];
+
+                     row.innerHTML = `
+                         <div class="col-12 contact-person-label fw-bold mb-1">Contact Person</div>
+                         <div class="col-md-3">
+                             <input type="text" class="form-control" placeholder="Name" required>
+                         </div>
+                         <div class="col-md-3">
+                             <input type="text" class="form-control" placeholder="Mobile" required>
+                         </div>
+                         <div class="col-md-3">
+                             <input type="text" class="form-control" placeholder="Email" required>
+                         </div>
+                         <div class="col-md-3">
+                             <input type="text" class="form-control" placeholder="Designation">
+                         </div>
+                         <div class="col-md-3">
+                                      <input type="date" class="form-control dob-field" max="${today}" placeholder="DOB">
+                         </div>
+
+                         <div class="col-md-1 d-flex">
+                             <button type="button" class="btn btn-sm btn-outline-success me-1" onclick="addContactPersonRow()">
+                                 <i class="bi bi-plus-lg"></i>
+                             </button>
+                             <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeContactPersonRow(this)">
+                                   <i class="bi bi-trash"></i>
+                             </button>
+                         </div>
+                     `;
+
+                     container.appendChild(row);
+
+                     // THIS is what fixes the problem!
+                     if (autoUpdate) updateContactPersonRows();
                  }
 
-                 // Function to refresh the table
-                 function refreshLeadTable() {
-                      fetch('/Lead/LeadDashboard')
-                         .then(response => response.text())
-                         .then(html => {
-                             document.querySelector('#serviceTable tbody').innerHTML = html;
-                             // Re-initialize DataTable if you're using it
-                             if ($.fn.DataTable.isDataTable('#serviceTable')) {
-                                 $('#serviceTable').DataTable().destroy();
-                             }
-                             $('#serviceTable').DataTable({
-                                 // Your DataTable config
-                             });
-                         });
-                 }
+                         function removeContactPersonRow(button) {
+                             const row = button.closest('.contact-person-row');
+                             row.remove();
+                             updateContactPersonRows();
+                         }
+
+                         // Call on load to initialize names correctly
+                         document.addEventListener("DOMContentLoaded", updateContactPersonRows);
 
 
 
 
-                 document.getElementById("tradeLicenseNumber").addEventListener("input", async function () {
-                     const tradeLicenseNumber = this.value.trim();
+                         async function loadLeadDetails(productRefNo) {
+                             try {
+                                 // Show loading indicator if needed
+                                 $('#leadDetailModal .modal-body').html('<div class="text-center"><i class="fa fa-spinner fa-spin fa-3x"></i><p>Loading details...</p></div>');
 
-                     if (tradeLicenseNumber === "") {
-                         resetLeadForm();
-                         return;
-                     }
+                                 // Load the partial view
+                                 const response = await fetch(`/Lead/GetLeadDetails?productRefNo=${encodeURIComponent(productRefNo)}`);
+                                 const html = await response.text();
 
-                     try {
-                         const response = await fetch(`/Lead/GetLeadByTradeLicense?tradeLicenseNumber=${encodeURIComponent(tradeLicenseNumber)}`);
-                         if (response.ok) {
-                             const data = await response.json();
+                                 // Update the modal content
+                                 $('#leadDetailModal .modal-body').html(html);
 
-                             if (data && data.success) {
-                                 populateLeadForm(data.lead);
-                             } else {
-                                 resetLeadForm();
+                                 // Set the title
+                                 document.getElementById("leadIdTitle").innerText = productRefNo;
+
+                                 // Show the modal
+                                 const modal = new bootstrap.Modal(document.getElementById('leadDetailModal'));
+                                 modal.show();
+                             } catch (error) {
+                                 console.error('Error loading lead details:', error);
+                                 $('#leadDetailModal .modal-body').html('<div class="alert alert-danger">Error loading lead details. Please try again.</div>');
                              }
                          }
-                     } catch (err) {
-                         console.error("Error fetching data:", err);
-                         resetLeadForm();
-                     }
-                 });
-
-        function populateLeadForm(lead) {
-             try {
-                 console.log("Populating form with:", lead);
-
-                 document.querySelector('[name="CompanyName"]').value = lead.companyName || "";
-                 document.querySelector('[name="Address"]').value = lead.address || "";
-                 document.querySelector('[name="TradeLicenseExpiry"]').value = lead.tradeLicenseExpiry || "";
-                 document.querySelector('[name="VAT"]').value = lead.vatTrn || "";
-                 document.querySelector('[name="Product"]').value = lead.product || "";
-                 document.querySelector('[name="LeadSource"]').value = lead.leadSource || "";
-                 document.querySelector('[name="Landline"]').value = lead.landline || "";
 
 
-                 clearContactPersonFields();
+                         function submitSubjectMatter() {
+                             const form = document.getElementById('subjectMatterForm');
+                             const formData = new FormData(form);
 
-                 if (lead.contactPersons && lead.contactPersons.length > 1) {
-                     for (let i = 1; i < lead.contactPersons.length; i++) {
-                         addContactPersonRow(false);
-                     }
-                 }
+                             const jsonData = {};
+                             formData.forEach((value, key) => {
+                                 jsonData[key] = value;
+                             });
 
-                 updateContactPersonRows();
+                             jsonData.ProductRefNo = document.getElementById('leadIdTitle').innerText;
 
-                 if (lead.contactPersons && lead.contactPersons.length > 0) {
-                     lead.contactPersons.forEach((cp, index) => {
-                         const nameInput = document.querySelector(`[name="ContactPersons[${index}].Name"]`);
-                         const mobileInput = document.querySelector(`[name="ContactPersons[${index}].Mobile"]`);
-                         const emailInput = document.querySelector(`[name="ContactPersons[${index}].Email"]`);
-                         const designationInput = document.querySelector(`[name="ContactPersons[${index}].Designation"]`);
-                         const dobInput = document.querySelector(`[name="ContactPersons[${index}].ContactPersonDOB"]`);
+                             fetch('/Lead/UpdateLeadDetails', {
+                                 method: 'POST',
+                                 headers: {
+                                     'Content-Type': 'application/json',
+                                 },
+                                 body: JSON.stringify(jsonData)
+                             })
+                             .then(response => response.json())
+                             .then(data => {
+                                   if (data.success) {
+                              alert('Saved successfully!');
+                              location.reload(); // Reloads the current page
+                          } else {
+                              alert('Error: ' + (data.message || 'Failed to save.'));
+                          }
+                             })
+                             .catch(() => {
+                                 alert('An error occurred while saving.');
+                             });
+                         }
 
-                         if (nameInput) nameInput.value = cp.name || "";
-                         if (mobileInput) mobileInput.value = cp.mobile || "";
-                         if (emailInput) emailInput.value = cp.email || "";
-                         if (designationInput) designationInput.value = cp.designation || "";
-                         if (dobInput) dobInput.value = cp.contactPersonDOB || "";
-                     });
-                 }
-             } catch (err) {
-                 console.error("Error populating form:", err);
-             }
+                         // Helper function to show toast notifications
+                         function showToast(message, type = 'success') {
+                             // Implement your toast notification here
+                             // Example using Bootstrap toasts:
+                             const toast = new bootstrap.Toast(document.getElementById('notificationToast'));
+                             document.getElementById('toastMessage').textContent = message;
+                             document.getElementById('notificationToast').classList.remove('bg-success', 'bg-danger');
+                             document.getElementById('notificationToast').classList.add(type === 'success' ? 'bg-success' : 'bg-danger');
+                             toast.show();
+                         }
 
-              // Step 5: Handle Trade License file download (if exists)
-                      const tradeLicenseLink = document.getElementById("tradeLicenseDownload");
-                      if (lead.tradeLicensePath) {
-                          tradeLicenseLink.href = lead.tradeLicensePath;
-                          tradeLicenseLink.classList.remove("d-none");
-                      } else {
-                          tradeLicenseLink.classList.add("d-none");
-                      }
-
-                      // Step 6: Handle VAT Certificate file download (if exists)
-                      const vatCertificateLink = document.getElementById("vatCertificateDownload");
-                      if (lead.vatCertificatePath) {
-                          vatCertificateLink.href = lead.vatCertificatePath;
-                          vatCertificateLink.classList.remove("d-none");
-                      } else {
-                          vatCertificateLink.classList.add("d-none");
-                      }
-         }
-
-                 //   function populateLeadForm(lead) {
-                 //     // Fill basic fields
-                 //     document.querySelector('[name="CompanyName"]').value = lead.companyName || "";
-                 //     document.querySelector('[name="Address"]').value = lead.address || "";
-                 //     document.querySelector('[name="TradeLicenseExpiry"]').value = lead.tradeLicenseExpiry || "";
-                 //     document.querySelector('[name="VAT"]').value = lead.vatTrn || "";
-                 //     document.querySelector('[name="Product"]').value = lead.product || "";
-                 //     document.querySelector('[name="LeadSource"]').value = lead.leadSource || "";
-                 //     document.querySelector('[name="Landline"]').value = lead.landline || "";
-
-                 //     // Step 1: Clear old contact person fields
-                 //     clearContactPersonFields();
-
-                 //     // Step 2: Add extra rows if more than 1 contact person exists
-                 //     if (lead.contactPersons && lead.contactPersons.length > 1) {
-                 //         for (let i = 1; i < lead.contactPersons.length; i++) {
-                 //             addContactPersonRow(false); // Add row without auto-reindexing
-                 //         }
-                 //     }
-
-                 //     // Step 3: Re-index the contact person inputs
-                 //     updateContactPersonRows();
-
-                 //     // Step 4: Fill in the values for each contact person
-                 //     if (lead.contactPersons && lead.contactPersons.length > 0) {
-                 //         lead.contactPersons.forEach((cp, index) => {
-                 //             document.querySelector(`[name="ContactPersons[${index}].Name"]`).value = cp.name || "";
-                 //             document.querySelector(`[name="ContactPersons[${index}].Mobile"]`).value = cp.mobile || "";
-                 //             document.querySelector(`[name="ContactPersons[${index}].Email"]`).value = cp.email || "";
-                 //             document.querySelector(`[name="ContactPersons[${index}].Designation"]`).value = cp.designation || "";
-                 //         });
-                 //     }
-
-                 //     // Step 5: Handle Trade License file download (if exists)
-                 //     const tradeLicenseLink = document.getElementById("tradeLicenseDownload");
-                 //     if (lead.tradeLicensePath) {
-                 //         tradeLicenseLink.href = lead.tradeLicensePath;
-                 //         tradeLicenseLink.classList.remove("d-none");
-                 //     } else {
-                 //         tradeLicenseLink.classList.add("d-none");
-                 //     }
-
-                 //     // Step 6: Handle VAT Certificate file download (if exists)
-                 //     const vatCertificateLink = document.getElementById("vatCertificateDownload");
-                 //     if (lead.vatCertificatePath) {
-                 //         vatCertificateLink.href = lead.vatCertificatePath;
-                 //         vatCertificateLink.classList.remove("d-none");
-                 //     } else {
-                 //         vatCertificateLink.classList.add("d-none");
-                 //     }
-                 // }
+                         // Function to refresh the table
+                         function refreshLeadTable() {
+                              fetch('/Lead/LeadDashboard')
+                                 .then(response => response.text())
+                                 .then(html => {
+                                     document.querySelector('#serviceTable tbody').innerHTML = html;
+                                     // Re-initialize DataTable if you're using it
+                                     if ($.fn.DataTable.isDataTable('#serviceTable')) {
+                                         $('#serviceTable').DataTable().destroy();
+                                     }
+                                     $('#serviceTable').DataTable({
+                                         // Your DataTable config
+                                     });
+                                 });
+                         }
 
 
-                      document.addEventListener("DOMContentLoaded", function () {
-                     const leadModalEl = document.getElementById('leadModal');
 
-                     // Reset form and fields when modal is closed
-                     leadModalEl.addEventListener('hidden.bs.modal', function () {
-                         document.getElementById('leadForm').reset();
-                         clearDownloadLinks();
+
+                         document.getElementById("tradeLicenseNumber").addEventListener("input", async function () {
+                             const tradeLicenseNumber = this.value.trim();
+
+                             if (tradeLicenseNumber === "") {
+                                 resetLeadForm();
+                                 return;
+                             }
+
+                             try {
+                                 const response = await fetch(`/Lead/GetLeadByTradeLicense?tradeLicenseNumber=${encodeURIComponent(tradeLicenseNumber)}`);
+                                 if (response.ok) {
+                                     const data = await response.json();
+
+                                     if (data && data.success) {
+                                         populateLeadForm(data.lead);
+                                     } else {
+                                         resetLeadForm();
+                                     }
+                                 }
+                             } catch (err) {
+                                 console.error("Error fetching data:", err);
+                                 resetLeadForm();
+                             }
+                         });
+
+                function populateLeadForm(lead) {
+                     try {
+                         console.log("Populating form with:", lead);
+
+                         document.querySelector('[name="CompanyName"]').value = lead.companyName || "";
+                         document.querySelector('[name="Address"]').value = lead.address || "";
+                         document.querySelector('[name="TradeLicenseExpiry"]').value = lead.tradeLicenseExpiry || "";
+                         document.querySelector('[name="VAT"]').value = lead.vatTrn || "";
+                         document.querySelector('[name="Product"]').value = lead.product || "";
+                         document.querySelector('[name="LeadSource"]').value = lead.leadSource || "";
+                         document.querySelector('[name="Landline"]').value = lead.landline || "";
+
+
                          clearContactPersonFields();
-                     });
 
-                     // Clear form if Trade License Number is removed
-                     const tradeLicenseInput = document.querySelector('[name="TradeLicenseNumber"]');
-                     tradeLicenseInput.addEventListener('input', function () {
-                         if (this.value.trim() === "") {
-                             document.getElementById('leadForm').reset();
+                         if (lead.contactPersons && lead.contactPersons.length > 1) {
+                             for (let i = 1; i < lead.contactPersons.length; i++) {
+                                 addContactPersonRow(false);
+                             }
+                         }
+
+                         updateContactPersonRows();
+
+                         if (lead.contactPersons && lead.contactPersons.length > 0) {
+                             lead.contactPersons.forEach((cp, index) => {
+                                 const nameInput = document.querySelector(`[name="ContactPersons[${index}].Name"]`);
+                                 const mobileInput = document.querySelector(`[name="ContactPersons[${index}].Mobile"]`);
+                                 const emailInput = document.querySelector(`[name="ContactPersons[${index}].Email"]`);
+                                 const designationInput = document.querySelector(`[name="ContactPersons[${index}].Designation"]`);
+                                 const dobInput = document.querySelector(`[name="ContactPersons[${index}].ContactPersonDOB"]`);
+
+                                 if (nameInput) nameInput.value = cp.name || "";
+                                 if (mobileInput) mobileInput.value = cp.mobile || "";
+                                 if (emailInput) emailInput.value = cp.email || "";
+                                 if (designationInput) designationInput.value = cp.designation || "";
+                                 if (dobInput) dobInput.value = cp.contactPersonDOB || "";
+                             });
+                         }
+                     } catch (err) {
+                         console.error("Error populating form:", err);
+                     }
+
+                      // // Step 5: Handle Trade License file download (if exists)
+                      //         const tradeLicenseLink = document.getElementById("tradeLicenseDownload");
+                      //         if (lead.tradeLicensePath) {
+                      //             tradeLicenseLink.href = lead.tradeLicensePath;
+                      //             tradeLicenseLink.classList.remove("d-none");
+                      //         } else {
+                      //             tradeLicenseLink.classList.add("d-none");
+                      //         }
+
+              const tradeLicenseLink = document.getElementById("tradeLicenseDownload");
+              const tradeLicenseInput = document.getElementById("tradeLicenseInput");
+        if (lead.tradeLicensePath) {
+            // Use URL helper to generate the download link
+            const downloadUrl = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.tradeLicensePath)}`;
+            tradeLicenseLink.href = downloadUrl;
+            tradeLicenseLink.classList.remove("d-none");
+            document.getElementById("tradeLicensePathHidden").value = lead.tradeLicensePath;
+            tradeLicenseInput.removeAttribute("required");
+        } else {
+            tradeLicenseLink.classList.add("d-none");
+            tradeLicenseInput.setAttribute("required", "required");
+        }
+
+                              // Step 6: Handle VAT Certificate file download (if exists)
+                              const vatCertificateLink = document.getElementById("vatCertificateDownload");
+                              if (lead.vatCertificatePath) {
+                                  const downloadUrl = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.vatCertificatePath)}`;
+                                  vatCertificateLink.href = downloadUrl;
+                                  vatCertificateLink.classList.remove("d-none");
+                              } else {
+                                  vatCertificateLink.classList.add("d-none");
+                              }
+                 }
+
+
+                              document.addEventListener("DOMContentLoaded", function () {
+                             const leadModalEl = document.getElementById('leadModal');
+
+                             // Reset form and fields when modal is closed
+                             leadModalEl.addEventListener('hidden.bs.modal', function () {
+                                 document.getElementById('leadForm').reset();
+                                 clearDownloadLinks();
+                                 clearContactPersonFields();
+                             });
+
+                             // Clear form if Trade License Number is removed
+                             const tradeLicenseInput = document.querySelector('[name="TradeLicenseNumber"]');
+                             tradeLicenseInput.addEventListener('input', function () {
+                                 if (this.value.trim() === "") {
+                                     document.getElementById('leadForm').reset();
+                                     clearDownloadLinks();
+                                     clearContactPersonFields();
+                                 }
+                             });
+                         });
+                                 function clearDownloadLinks() {
+                             const tradeLink = document.getElementById("tradeLicenseDownload");
+                             const vatLink = document.getElementById("vatCertificateDownload");
+
+                             if (tradeLink) tradeLink.classList.add("d-none");
+                             if (vatLink) vatLink.classList.add("d-none");
+                         }
+
+                         function clearContactPersonFields() {
+                             const container = document.getElementById('contactPersonContainer');
+                             container.innerHTML = '';
+
+                             // Add one initial blank row
+                             const row = document.createElement('div');
+                             row.classList.add('row', 'g-2', 'contact-person-row');
+                             row.innerHTML = `
+                 <div class="col-12 contact-person-label fw-bold mb-1">Contact Person 1</div>
+                 <div class="col-md-3">
+                 <input type="text" name="ContactPersons[0].Name" class="form-control" placeholder="Name" required>
+                 </div>
+                 <div class="col-md-3">
+                 <input type="text" name="ContactPersons[0].Mobile" class="form-control" placeholder="Mobile" required>
+                 </div>
+                 <div class="col-md-3">
+                 <input type="text" name="ContactPersons[0].Email" class="form-control" placeholder="Email" required>
+                 </div>
+                 <div class="col-md-3">
+                 <input type="text" name="ContactPersons[0].Designation" class="form-control" placeholder="Designation">
+                 </div>
+                 <div class="col-md-3">
+                 <input type="date" name="ContactPersons[0].ContactPersonDOB" class="form-control " placeholder="DOB">
+                 </div>
+                 <div class="col-md-1 d-flex">
+                 <button type="button" class="btn btn-sm btn-outline-success me-1" onclick="addContactPersonRow()">
+                 <i class="bi bi-plus-lg"></i>
+                 </button>
+                 </div>
+                             `;
+                             container.appendChild(row);
+                             contactPersonIndex = 1; // Reset index
+                         }
+
+                    function resetLeadForm() {
+                             const tradeInput = document.querySelector('[name="TradeLicenseNumber"]');
+                             const currentLicense = tradeInput.value; // Save current input
+
+                             document.getElementById('leadForm').reset(); // Reset everything
+                             tradeInput.value = currentLicense; // Restore just the license number
+
                              clearDownloadLinks();
                              clearContactPersonFields();
                          }
-                     });
-                 });
-                         function clearDownloadLinks() {
-                     const tradeLink = document.getElementById("tradeLicenseDownload");
-                     const vatLink = document.getElementById("vatCertificateDownload");
-
-                     if (tradeLink) tradeLink.classList.add("d-none");
-                     if (vatLink) vatLink.classList.add("d-none");
-                 }
-
-                 function clearContactPersonFields() {
-                     const container = document.getElementById('contactPersonContainer');
-                     container.innerHTML = '';
-
-                     // Add one initial blank row
-                     const row = document.createElement('div');
-                     row.classList.add('row', 'g-2', 'contact-person-row');
-                     row.innerHTML = `
-         <div class="col-12 contact-person-label fw-bold mb-1">Contact Person 1</div>
-         <div class="col-md-3">
-         <input type="text" name="ContactPersons[0].Name" class="form-control" placeholder="Name" required>
-         </div>
-         <div class="col-md-3">
-         <input type="text" name="ContactPersons[0].Mobile" class="form-control" placeholder="Mobile" required>
-         </div>
-         <div class="col-md-3">
-         <input type="text" name="ContactPersons[0].Email" class="form-control" placeholder="Email" required>
-         </div>
-         <div class="col-md-3">
-         <input type="text" name="ContactPersons[0].Designation" class="form-control" placeholder="Designation">
-         </div>
-         <div class="col-md-3">
-         <input type="date" name="ContactPersons[0].ContactPersonDOB" class="form-control " placeholder="DOB">
-         </div>
-         <div class="col-md-1 d-flex">
-         <button type="button" class="btn btn-sm btn-outline-success me-1" onclick="addContactPersonRow()">
-         <i class="bi bi-plus-lg"></i>
-         </button>
-         </div>
-                     `;
-                     container.appendChild(row);
-                     contactPersonIndex = 1; // Reset index
-                 }
-
-            function resetLeadForm() {
-                     const tradeInput = document.querySelector('[name="TradeLicenseNumber"]');
-                     const currentLicense = tradeInput.value; // Save current input
-
-                     document.getElementById('leadForm').reset(); // Reset everything
-                     tradeInput.value = currentLicense; // Restore just the license number
-
-                     clearDownloadLinks();
-                     clearContactPersonFields();
-                 }
 
 
-                 function toggleLeadSourceFields() {
-                     const leadSource = document.getElementById('leadSourceSelect').value;
-                     const agencyFields = document.getElementById('agencyFields');
-                     const referralField = document.getElementById('referralField');
+                         function toggleLeadSourceFields() {
+                             const leadSource = document.getElementById('leadSourceSelect').value;
+                             const agencyFields = document.getElementById('agencyFields');
+                             const referralField = document.getElementById('referralField');
 
-                     // Hide all first
-                     agencyFields.classList.add('d-none');
-                     referralField.classList.add('d-none');
+                             // Hide all first
+                             agencyFields.classList.add('d-none');
+                             referralField.classList.add('d-none');
 
-                     // Clear required attributes
-                     document.querySelector('[name="ExternalAgencyName"]').required = false;
-                     document.querySelector('[name="ExternalAgentName"]').required = false;
-                     document.querySelector('[name="ReferralPersonName"]').required = false;
+                             // Clear required attributes
+                             document.querySelector('[name="ExternalAgencyName"]').required = false;
+                             document.querySelector('[name="ExternalAgentName"]').required = false;
+                             document.querySelector('[name="ReferralPersonName"]').required = false;
 
-                     // Show relevant fields based on selection
-                     if (leadSource === 'Agency') {
-                         agencyFields.classList.remove('d-none');
-                         document.querySelector('[name="ExternalAgencyName"]').required = true;
-                         document.querySelector('[name="ExternalAgentName"]').required = true;
-                     }
-                     else if (leadSource === 'Referral') {
-                         referralField.classList.remove('d-none');
-                         document.querySelector('[name="ReferralPersonName"]').required = true;
-                     }
-                 }
+                             // Show relevant fields based on selection
+                             if (leadSource === 'Agency') {
+                                 agencyFields.classList.remove('d-none');
+                                 document.querySelector('[name="ExternalAgencyName"]').required = true;
+                                 document.querySelector('[name="ExternalAgentName"]').required = true;
+                             }
+                             else if (leadSource === 'Referral') {
+                                 referralField.classList.remove('d-none');
+                                 document.querySelector('[name="ReferralPersonName"]').required = true;
+                             }
+                         }
 
-                 // // Initialize on page load
-                 // document.addEventListener("DOMContentLoaded", function() {
-                 //     toggleLeadSourceFields(); // Set initial state
-                 // });
-
-
-                 document.addEventListener("DOMContentLoaded", function () {
-    toggleLeadSourceFields(); // Set initial state
-    loadAgencies(); // Load agency dropdown on page load
-
-    // Load agents when agency changes
-    document.getElementById('agencySelect').addEventListener('change', function () {
-        const agencyId = this.value;
-        loadAgentsByAgency(agencyId);
-    });
-});
-
-        function loadAgencies() {
-            fetch('/Lead/GetAgencies')
-                .then(response => response.json())
-                .then(data => {
-                    const agencySelect = document.getElementById('agencySelect');
-                    agencySelect.innerHTML = '<option value="">Select Agency</option>';
-
-                    data.forEach(agency => {
-                        const option = document.createElement('option');
-                        option.value = agency.customerOrgId; // <- use correct field
-                        option.text = agency.agencyName;
-                        agencySelect.appendChild(option);
-                    });
-                });
-        }
-
-        function loadAgentsByAgency(agencyId) {
-            fetch(`/Lead/GetAgentsByAgency?agencyId=${agencyId}`)
-                .then(response => response.json())
-                .then(data => {
-                    const agentSelect = document.getElementById('agentSelect');
-                    agentSelect.innerHTML = '<option value="">Select Agent</option>';
-
-                    data.forEach(agent => {
-                        const option = document.createElement('option');
-                        option.value = agent.nodeId; // <- use correct field
-                        option.text = agent.agentName;
-                        agentSelect.appendChild(option);
-                    });
-                });
-        }
+                         // // Initialize on page load
+                         // document.addEventListener("DOMContentLoaded", function() {
+                         //     toggleLeadSourceFields(); // Set initial state
+                         // });
 
 
-            // document.querySelector('form').addEventListener('submit', function () {
-            //     const agencySelect = document.getElementById('agencySelect');
-            //     const agentSelect = document.getElementById('agentSelect');
+           document.addEventListener("DOMContentLoaded", function () {
+            toggleLeadSourceFields(); // Set initial state
+            loadAgencies(); // Load agency dropdown on page load
 
-            //     const agencyId = agencySelect.selectedOptions[0]?.getAttribute('data-id') || '';
-            //     const agentId = agentSelect.selectedOptions[0]?.getAttribute('data-id') || '';
-
-            //     // Add hidden input for ExternalAgencyId
-            //     const agencyIdInput = document.createElement('input');
-            //     agencyIdInput.type = 'hidden';
-            //     agencyIdInput.name = 'ExternalAgencyId';
-            //     agencyIdInput.value = agencyId;
-            //     this.appendChild(agencyIdInput);
-
-            //     // Add hidden input for ExternalAgentId
-            //     const agentIdInput = document.createElement('input');
-            //     agentIdInput.type = 'hidden';
-            //     agentIdInput.name = 'ExternalAgentId';
-            //     agentIdInput.value = agentId;
-            //     this.appendChild(agentIdInput);
-            // });
-
-
-       document.querySelector('form').addEventListener('submit', function () {
-            const agencySelect = document.getElementById('agencySelect');
-            const agentSelect = document.getElementById('agentSelect');
-
-            // Get the actual VALUE (which is customerOrgId) from the selected option
-            const agencyIdValue = agencySelect.value || '';
-            const agentIdValue = agentSelect.value || '';
-
-            // Add hidden input for ExternalAgencyId
-            // This input will send the agency's customerOrgId to LeadViewModel.ExternalAgencyId
-            const agencyIdInput = document.createElement('input');
-            agencyIdInput.type = 'hidden';
-            agencyIdInput.name = 'ExternalAgencyId'; // This matches your model's property
-            agencyIdInput.value = agencyIdValue;
-            this.appendChild(agencyIdInput);
-
-            // Add hidden input for ExternalAgentId
-            // This input will send the agent's customerOrgId to LeadViewModel.ExternalAgentId
-            const agentIdInput = document.createElement('input');
-            agentIdInput.type = 'hidden';
-            agentIdInput.name = 'ExternalAgentId'; // This matches your model's property
-            agentIdInput.value = agentIdValue;
-            this.appendChild(agentIdInput);
+            // Load agents when agency changes
+            document.getElementById('agencySelect').addEventListener('change', function () {
+                const agencyId = this.value;
+                loadAgentsByAgency(agencyId);
+            });
         });
 
+                function loadAgencies() {
+                    fetch('/Lead/GetAgencies')
+                        .then(response => response.json())
+                        .then(data => {
+                            const agencySelect = document.getElementById('agencySelect');
+                            agencySelect.innerHTML = '<option value="">Select Agency</option>';
 
-                document.addEventListener("DOMContentLoaded", function () {
-                const today = new Date().toISOString().split('T')[0];
-                document.querySelectorAll('.dob-field').forEach(field => {
-                    field.setAttribute('max', today);
+                            data.forEach(agency => {
+                                const option = document.createElement('option');
+                                option.value = agency.customerOrgId; // <- use correct field
+                                option.text = agency.agencyName;
+                                agencySelect.appendChild(option);
+                            });
+                        });
+                }
+
+                function loadAgentsByAgency(agencyId) {
+                    fetch(`/Lead/GetAgentsByAgency?agencyId=${agencyId}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const agentSelect = document.getElementById('agentSelect');
+                            agentSelect.innerHTML = '<option value="">Select Agent</option>';
+
+                            data.forEach(agent => {
+                                const option = document.createElement('option');
+                                option.value = agent.nodeId; // <- use correct field
+                                option.text = agent.agentName;
+                                agentSelect.appendChild(option);
+                            });
+                        });
+                }
+
+
+
+
+               document.querySelector('form').addEventListener('submit', function () {
+                    const agencySelect = document.getElementById('agencySelect');
+                    const agentSelect = document.getElementById('agentSelect');
+
+                    // Get the actual VALUE (which is customerOrgId) from the selected option
+                    const agencyIdValue = agencySelect.value || '';
+                    const agentIdValue = agentSelect.value || '';
+
+                    // Add hidden input for ExternalAgencyId
+                    // This input will send the agency's customerOrgId to LeadViewModel.ExternalAgencyId
+                    const agencyIdInput = document.createElement('input');
+                    agencyIdInput.type = 'hidden';
+                    agencyIdInput.name = 'ExternalAgencyId'; // This matches your model's property
+                    agencyIdInput.value = agencyIdValue;
+                    this.appendChild(agencyIdInput);
+
+                    // Add hidden input for ExternalAgentId
+                    // This input will send the agent's customerOrgId to LeadViewModel.ExternalAgentId
+                    const agentIdInput = document.createElement('input');
+                    agentIdInput.type = 'hidden';
+                    agentIdInput.name = 'ExternalAgentId'; // This matches your model's property
+                    agentIdInput.value = agentIdValue;
+                    this.appendChild(agentIdInput);
                 });
-            });
+
+                //For DOB not selected future date
+                        document.addEventListener("DOMContentLoaded", function () {
+                        const today = new Date().toISOString().split('T')[0];
+                        document.querySelectorAll('.dob-field').forEach(field => {
+                            field.setAttribute('max', today);
+                        });
+                    });
 
     </script>
 

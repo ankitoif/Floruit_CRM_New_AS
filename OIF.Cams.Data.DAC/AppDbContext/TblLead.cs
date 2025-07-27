@@ -51,6 +51,8 @@ public partial class TblLead
 
     public string? ReferralPersonName { get; set; }
 
+    public string? Risk { get; set; }
+
     public virtual TblBank? Bank { get; set; }
 
     public virtual TblCustomer? Customer { get; set; }
@@ -58,4 +60,6 @@ public partial class TblLead
     public virtual TblmstProductStatus? Status { get; set; }
 
     public virtual ICollection<TblLeadAuditLog> TblLeadAuditLogs { get; set; } = new List<TblLeadAuditLog>();
+
+    public virtual ICollection<TblLeadDocument> TblLeadDocuments { get; set; } = new List<TblLeadDocument>();
 }

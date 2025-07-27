@@ -74,6 +74,18 @@
     <h5>Subject Matter Details</h5>
     <div class="row">
         <div class="col-md-6 mb-2">
+            <label>Risk <span class="text-danger">*</span></label>
+            <select name="Risk" class="form-control" @(isAdmin ? "disabled" : "") required>
+                <option value="">Select Risk</option>
+                @foreach (var riskLevel in Model.AvailableRisks)
+                {
+                    <option value="@riskLevel" selected="@(riskLevel == Model.Risk)">@riskLevel</option>
+                }
+            </select>
+        </div>
+
+
+        <div class="col-md-6 mb-2">
             <label>Agency / Referral</label>
             <input type="text" name="AgencyReferral" value="@Model.AgencyReferral" class="form-control" readonly />
         </div>
@@ -149,7 +161,8 @@
             <label>Trade License Document</label>
             @if (!string.IsNullOrEmpty(Model.TradeLicensePath))
             {
-                <a href="@Model.TradeLicensePath" target="_blank" class="btn btn-link">View Document</a>
+                var downloadUrl = Url.Action("DownloadDocument", "Lead", new { filePath = Model.TradeLicensePath });
+                <a href="@downloadUrl" target="_blank" class="btn btn-link">View Document</a>
             }
             else
             {
@@ -170,7 +183,8 @@
             <label>VAT Certificate</label>
             @if (!string.IsNullOrEmpty(Model.VATCertificatePath))
             {
-                <a href="@Model.VATCertificatePath" target="_blank" class="btn btn-link">View Certificate</a>
+                var downloadUrl = Url.Action("DownloadDocument", "Lead", new { filePath = Model.VATCertificatePath });
+                <a href="@downloadUrl" target="_blank" class="btn btn-link">View Certificate</a>
             }
             else
             {
@@ -178,6 +192,34 @@
             }
         </div>
     </div>
+
+
+
+
+    <h5 class="mt-4">Risk-Based Additional Documents</h5>
+    <table class="table table-bordered" id="docTable">
+        <thead>
+            <tr>
+                <th>Document Type</th>
+                <th>Description</th>
+                <th>Upload</th>
+                <th style="width: 50px;">Action</th>
+            </tr>
+        </thead>
+        <tbody id="docTableBody">
+            <!-- Initial row will be added by JavaScript -->
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-sm btn-primary" onclick="addDocRow()">+ Add Document</button>
+
+
+
+
+
+
+
+
 
     <!-- Section: Remarks -->
     <div class="row mt-3">
@@ -240,4 +282,102 @@
             });
         }
     });
+
+
+
+
+
+
+
+    const docTypes = [
+        "Trade License",
+        "Memorandum of Association (MOA)",
+        "Tenancy Contract",
+        "Share Certificate",
+        "Certificate of Incorporation / Certificate of Formation",
+        "KYC",
+        "Passport Front",
+        "Passport Back",
+        "EmiratesID Front",
+        "EmiratesID Back",
+        "Bank Statement",
+        "VAT certificate",
+        "Others Documents"
+    ];
+
+    function createDocTypeDropdown(rowIndex) {
+        const select = document.createElement("select");
+        select.name = `AdditionalDocuments[${rowIndex}].DocumentType`;
+        select.className = "form-control";
+        select.setAttribute("onchange", `toggleDescription(this, ${rowIndex})`);
+
+        const defaultOption = new Option("Select", "");
+        select.appendChild(defaultOption);
+
+        docTypes.forEach(type => {
+            const option = new Option(type, type);
+            select.appendChild(option);
+        });
+
+        return select;
+    }
+
+    function addDocRow() {
+        const tableBody = document.getElementById("docTableBody");
+        const rowIndex = tableBody.rows.length;
+        const row = tableBody.insertRow();
+
+        // Document Type
+        const cell0 = row.insertCell(0);
+        const select = createDocTypeDropdown(rowIndex);
+        cell0.appendChild(select);
+
+        // Description
+        const cell1 = row.insertCell(1);
+        const desc = document.createElement("input");
+        desc.type = "text";
+        desc.name = `AdditionalDocuments[${rowIndex}].Description`;
+        desc.className = "form-control";
+        desc.placeholder = "Only required for 'Others Documents'";
+        desc.disabled = true;
+        cell1.appendChild(desc);
+
+        // File upload
+        const cell2 = row.insertCell(2);
+        const file = document.createElement("input");
+        file.type = "file";
+        file.name = `AdditionalDocuments[${rowIndex}].File`;
+        file.className = "form-control";
+        cell2.appendChild(file);
+
+        // Action (+/-)
+        const cell3 = row.insertCell(3);
+        const removeBtn = document.createElement("button");
+        removeBtn.type = "button";
+        removeBtn.innerText = "Remove";
+        removeBtn.className = "btn btn-danger btn-sm";
+        removeBtn.onclick = function () {
+            row.remove();
+        };
+        cell3.appendChild(removeBtn);
+    }
+
+    function toggleDescription(selectElement, index) {
+        const row = selectElement.closest("tr");
+        const descInput = row.querySelector('input[type="text"]');
+
+        if (selectElement.value === "Others Documents") {
+            descInput.disabled = false;
+        } else {
+            descInput.disabled = true;
+            descInput.value = "";
+        }
+    }
+
+    // Add one default row on page load
+    document.addEventListener("DOMContentLoaded", () => {
+        addDocRow();
+    });
+
+
 </script>

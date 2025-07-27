@@ -32,6 +32,7 @@ namespace OIF.Cams.Model.LeadVM
         public string InvoiceNo { get; set; }
         public List<ContactPerson> ContactPersons { get; set; }
         public string LeadStatus { get; set; }
+        public string TradeLicensePathFile { get; set; }
         public string TradeLicensePath { get; set; }
         public string VATCertificatePath { get; set; }
         public string CurrentUser { get; set; }
@@ -41,6 +42,37 @@ namespace OIF.Cams.Model.LeadVM
         public string ReferralPersonName { get; set; }
         public string ExternalAgencyId { get; set; } 
         public string ExternalAgentId { get; set; }
+
+        //Lead doc
+        public IFormFile MOA { get; set; }
+        public string MOAPath { get; set; }
+
+        public IFormFile TenancyContract { get; set; }
+        public string TenancyContractPath { get; set; }
+
+        public IFormFile ShareCertificate { get; set; }
+        public string ShareCertificatePath { get; set; }
+
+        public IFormFile CertificateOfIncorporation { get; set; }
+        public string CertificateOfIncorporationPath { get; set; }
+
+        public IFormFile KYC { get; set; }
+        public string KYCPath { get; set; }
+
+        public IFormFile PassportFront { get; set; }
+        public string PassportFrontPath { get; set; }
+
+        public IFormFile PassportBack { get; set; }
+        public string PassportBackPath { get; set; }
+
+        public IFormFile EmiratesIDFront { get; set; }
+        public string EmiratesIDFrontPath { get; set; }
+
+        public IFormFile EmiratesIDBack { get; set; }
+        public string EmiratesIDBackPath { get; set; }
+
+        public IFormFile BankStatement { get; set; }
+        public string BankStatementPath { get; set; }
     }
 
     public class ContactPerson
@@ -95,6 +127,21 @@ namespace OIF.Cams.Model.LeadVM
         "Awaiting Documents", "Submitted", "Pending with client",
         "Accessing with Bank", "Account opened", "Account declined"
     };
+
+        public List<string> AvailableRisks { get; set; } = new List<string> { 
+            "Low", "Medium", "High" 
+        };
+        public string Risk { get; set; }
+
+        public List<AdditionalDocumentModel> AdditionalDocuments { get; set; } = new List<AdditionalDocumentModel>();
+        public class AdditionalDocumentModel
+        {
+            public string DocumentType { get; set; }
+            public string Description { get; set; }
+            public IFormFile File { get; set; }
+        }
+
+        
 
     }
 

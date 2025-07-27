@@ -35,5 +35,9 @@ public partial class TblCustomer
 
     public virtual ICollection<TblContactPerson> TblContactPeople { get; set; } = new List<TblContactPerson>();
 
+    public virtual ICollection<TblCustomerDoc> TblCustomerDocs { get; set; } = new List<TblCustomerDoc>();
+
+    public virtual ICollection<TblLeadDocument> TblLeadDocuments { get; set; } = new List<TblLeadDocument>();
+
     public virtual ICollection<TblLead> TblLeads { get; set; } = new List<TblLead>();
 }

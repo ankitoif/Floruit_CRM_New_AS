@@ -14,6 +14,7 @@ namespace OIF.Cams.Data.DAC
     {
         public CamsDbContext(DbContextOptions<CamsDbContext> options) : base(options) { }
 
+ 
         public virtual DbSet<TblBank> TblBanks { get; set; }
 
         public virtual DbSet<TblContactPerson> TblContactPeople { get; set; }
@@ -49,11 +50,17 @@ namespace OIF.Cams.Data.DAC
         public virtual DbSet<TblUserPassword> TblUserPasswords { get; set; }
 
         public virtual DbSet<TblmstProductStatus> TblmstProductStatuses { get; set; }
+        public virtual DbSet<TblCustomerDoc> TblCustomerDocs { get; set; }
+        public virtual DbSet<TblLeadDocument> TblLeadDocuments { get; set; }
+        public virtual DbSet<TblmstdocumentType> TblmstdocumentTypes { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+       
             modelBuilder.Entity<TblBank>(entity =>
             {
                 entity.HasKey(e => e.BankId).HasName("PK__tblBank__AA08CB33EF808A68");
@@ -145,6 +152,7 @@ namespace OIF.Cams.Data.DAC
                     .HasColumnName("VatTRNno");
             });
 
+
             modelBuilder.Entity<TblLead>(entity =>
             {
                 entity.HasKey(e => e.LeadId).HasName("PK__tblLead__73EF791A11055EEF");
@@ -187,6 +195,7 @@ namespace OIF.Cams.Data.DAC
                     .IsUnicode(false);
                 entity.Property(e => e.ReferralPersonName).HasMaxLength(250);
                 entity.Property(e => e.Remarks).HasMaxLength(500);
+                entity.Property(e => e.Risk).HasMaxLength(50);
                 entity.Property(e => e.StatusId).HasColumnName("StatusID");
 
                 entity.HasOne(d => d.Bank).WithMany(p => p.TblLeads)
@@ -474,6 +483,38 @@ namespace OIF.Cams.Data.DAC
                 entity.Property(e => e.UserId).HasColumnName("UserID");
             });
 
+
+            modelBuilder.Entity<TblCustomerDoc>(entity =>
+            {
+                entity.HasKey(e => e.CustDocId).HasName("PK__tblCusto__1AA685B022BE6795");
+
+                entity.ToTable("tblCustomerDoc");
+
+                entity.Property(e => e.CustDocId).HasColumnName("CustDocID");
+                entity.Property(e => e.CreatedDateTime)
+                    .HasDefaultValueSql("(getdate())")
+                    .HasColumnType("datetime");
+                entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
+                entity.Property(e => e.DocumentDescription)
+                    .HasMaxLength(255)
+                    .IsUnicode(false);
+                entity.Property(e => e.DocumentPath).IsUnicode(false);
+                entity.Property(e => e.DocumentTypeId).HasColumnName("DocumentTypeID");
+                entity.Property(e => e.IsValid).HasDefaultValue(true);
+                entity.Property(e => e.ModifiedDateTime).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Customer).WithMany(p => p.TblCustomerDocs)
+                    .HasForeignKey(d => d.CustomerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblCustomerDoc_CustomerID");
+
+                entity.HasOne(d => d.DocumentType).WithMany(p => p.TblCustomerDocs)
+                    .HasForeignKey(d => d.DocumentTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblCustomerDoc_DocumentTypeID");
+            });
+
+
             modelBuilder.Entity<TblmstProductStatus>(entity =>
             {
                 entity.HasKey(e => e.StatusId).HasName("PK__tblmstPr__C8EE204383F12C54");
@@ -493,8 +534,62 @@ namespace OIF.Cams.Data.DAC
                     .HasColumnType("datetime");
             });
 
+            modelBuilder.Entity<TblLeadDocument>(entity =>
+            {
+                entity.HasKey(e => e.LeadDocumentId).HasName("PK__tblLeadD__5AC778F5FE531C74");
+
+                entity.ToTable("tblLeadDocuments");
+
+                entity.Property(e => e.LeadDocumentId).HasColumnName("LeadDocumentID");
+                entity.Property(e => e.CreatedDateTime)
+                    .HasDefaultValueSql("(getdate())")
+                    .HasColumnType("datetime");
+                entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
+                entity.Property(e => e.DocumentDescription)
+                    .HasMaxLength(255)
+                    .IsUnicode(false);
+                entity.Property(e => e.DocumentPath).IsUnicode(false);
+                entity.Property(e => e.DocumentTypeId).HasColumnName("DocumentTypeID");
+                entity.Property(e => e.IsValid).HasDefaultValue(true);
+                entity.Property(e => e.LeadId).HasColumnName("LeadID");
+                entity.Property(e => e.ModifiedDateTime).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Customer).WithMany(p => p.TblLeadDocuments)
+                    .HasForeignKey(d => d.CustomerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblLeadDocuments_CustomerID");
+
+                entity.HasOne(d => d.DocumentType).WithMany(p => p.TblLeadDocuments)
+                    .HasForeignKey(d => d.DocumentTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblLeadDocuments_DocumentTypeID");
+
+                entity.HasOne(d => d.Lead).WithMany(p => p.TblLeadDocuments)
+                    .HasForeignKey(d => d.LeadId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblLeadDocuments_LeadID");
+            });
+
+            modelBuilder.Entity<TblmstdocumentType>(entity =>
+            {
+                entity.HasKey(e => e.DocumentTypeId).HasName("PK__tblmstdo__DBA390C1E6B848F4");
+
+                entity.ToTable("tblmstdocumentType");
+
+                entity.Property(e => e.DocumentTypeId).HasColumnName("DocumentTypeID");
+                entity.Property(e => e.CreatedDate)
+                    .HasDefaultValueSql("(getdate())")
+                    .HasColumnType("datetime");
+                entity.Property(e => e.DocumentName)
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
+                entity.Property(e => e.IsValid).HasDefaultValue(true);
+            });
+
             OnModelCreatingPartial(modelBuilder);
+
         }
+
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }
