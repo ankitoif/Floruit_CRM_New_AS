@@ -51,17 +51,25 @@ namespace OIF.Cams.Data.Repository.Lead
                 }
 
                 // Save VAT Certificate file
-                if (model.VATCertificate != null && model.VATCertificate.Length > 0)
+                if (model.VATCertificate != null || model.VATCertificatePath !=null)
                 {
-                    var fileName = $"VATCertificate_{Guid.NewGuid()}{Path.GetExtension(model.VATCertificate.FileName)}";
-                    var filePath = Path.Combine(uploadsRootFolder, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    if (model.VATCertificate != null)
                     {
-                        await model.VATCertificate.CopyToAsync(stream);
-                    }
+                        var fileName = $"VATCertificate_{Guid.NewGuid()}{Path.GetExtension(model.VATCertificate.FileName)}";
+                        var filePath = Path.Combine(uploadsRootFolder, fileName);
 
-                    vatCertificatePath = $"uploads/{fileName}";
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await model.VATCertificate.CopyToAsync(stream);
+                        }
+
+                        vatCertificatePath = $"uploads/{fileName}";
+                    }
+                    else if ((!string.IsNullOrEmpty(model.VATCertificatePath)))
+                    {
+                        vatCertificatePath = model.VATCertificatePath;
+                    }                
+
                 }
 
                 TblCustomer cust = new TblCustomer();
@@ -189,46 +197,103 @@ namespace OIF.Cams.Data.Repository.Lead
                 var docTypes = await _context.TblmstdocumentTypes.ToListAsync();
 
                 // 3. Map document names to model files
-                var fileMap = new Dictionary<string, IFormFile>(StringComparer.OrdinalIgnoreCase)
+                //var fileMap = new Dictionary<string, IFormFile>(StringComparer.OrdinalIgnoreCase)
+                //{
+                //    ["Trade License"] = model.TradeLicense,
+                //    ["Memorandum of Association (MOA)"] = model.MOA,
+                //    ["Tenancy Contract"] = model.TenancyContract,
+                //    ["Share Certificate"] = model.ShareCertificate,
+                //    ["Certificate of Incorporation / Certificate of Formation"] = model.CertificateOfIncorporation,
+                //    ["KYC"] = model.KYC,
+                //    ["Passport Front"] = model.PassportFront,
+                //    ["Passport Back"] = model.PassportBack,
+                //    ["EmiratesID Front"] = model.EmiratesIDFront,
+                //    ["EmiratesID Back"] = model.EmiratesIDBack,
+                //    ["Bank Statement"] = model.BankStatement,
+                //    ["Others Documents"] = null, // handle manually if needed
+                //    ["VAT Certificate"] = model.VATCertificate
+                //};
+                var fileMap = new Dictionary<string, (IFormFile file, string existingPath)>(StringComparer.OrdinalIgnoreCase)
                 {
-                    ["Trade License"] = model.TradeLicense,
-                    ["Memorandum of Association (MOA)"] = model.MOA,
-                    ["Tenancy Contract"] = model.TenancyContract,
-                    ["Share Certificate"] = model.ShareCertificate,
-                    ["Certificate of Incorporation / Certificate of Formation"] = model.CertificateOfIncorporation,
-                    ["KYC"] = model.KYC,
-                    ["Passport Front"] = model.PassportFront,
-                    ["Passport Back"] = model.PassportBack,
-                    ["EmiratesID Front"] = model.EmiratesIDFront,
-                    ["EmiratesID Back"] = model.EmiratesIDBack,
-                    ["Bank Statement"] = model.BankStatement,
-                    ["Others Documents"] = null, // handle manually if needed
-                    ["VAT Certificate"] = model.VATCertificate
+                    ["Trade License"] = (model.TradeLicense, model.TradeLicensePath),
+                    ["Memorandum of Association (MOA)"] = (model.MOA, model.MOAPath),
+                    ["Tenancy Contract"] = (model.TenancyContract, model.TenancyContractPath),
+                    ["Share Certificate"] = (model.ShareCertificate, model.ShareCertificatePath),
+                    ["Certificate of Incorporation / Certificate of Formation"] = (model.CertificateOfIncorporation, model.CertificateOfIncorporationPath),
+                    ["KYC"] = (model.KYC, model.KYCPath),
+                    ["Passport Front"] = (model.PassportFront, model.PassportFrontPath),
+                    ["Passport Back"] = (model.PassportBack, model.PassportBackPath),
+                    ["EmiratesID Front"] = (model.EmiratesIDFront, model.EmiratesIDFrontPath),
+                    ["EmiratesID Back"] = (model.EmiratesIDBack, model.EmiratesIDBackPath),
+                    ["Bank Statement"] = (model.BankStatement, model.BankStatementPath),
+                    ["Others Documents"] = (null, null), // Handle separately if needed
+                    ["VAT Certificate"] = (model.VATCertificate, model.VATCertificatePath)
                 };
+
 
                 var customerDocs = new List<TblCustomerDoc>();
 
+                //foreach (var docType in docTypes)
+                //{
+                //    if (fileMap.TryGetValue(docType.DocumentName.Trim(), out var formFile) && formFile != null && formFile.Length > 0)
+                //    {
+                //        var fileName = $"{docType.DocumentName.Replace(" ", "_")}_{Guid.NewGuid()}{Path.GetExtension(formFile.FileName)}";
+                //        var filePath = Path.Combine(uploadsRootFolder, fileName);
+
+                //        using (var stream = new FileStream(filePath, FileMode.Create))
+                //        {
+                //            await formFile.CopyToAsync(stream);
+                //        }
+                //        customerDocs.Add(new TblCustomerDoc
+                //        {
+                //            CustomerId = cust.CustomerId,
+                //            DocumentTypeId = docType.DocumentTypeId,
+                //            DocumentDescription = docType.DocumentName,
+                //            DocumentPath = $"uploads/{fileName}",
+                //            IsValid = true,
+                //            CreatedDateTime = DateTime.Now
+                //        });
+                //    }
+                //}
+
                 foreach (var docType in docTypes)
                 {
-                    if (fileMap.TryGetValue(docType.DocumentName.Trim(), out var formFile) && formFile != null && formFile.Length > 0)
+                    if (fileMap.TryGetValue(docType.DocumentName.Trim(), out var fileInfo))
                     {
-                        var fileName = $"{docType.DocumentName.Replace(" ", "_")}_{Guid.NewGuid()}{Path.GetExtension(formFile.FileName)}";
-                        var filePath = Path.Combine(uploadsRootFolder, fileName);
+                        string finalPath = null;
 
-                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        // Case 1: New file uploaded
+                        if (fileInfo.file != null && fileInfo.file.Length > 0)
                         {
-                            await formFile.CopyToAsync(stream);
+                            var fileName = $"{docType.DocumentName.Replace(" ", "_")}_{Guid.NewGuid()}{Path.GetExtension(fileInfo.file.FileName)}";
+                            var filePath = Path.Combine(uploadsRootFolder, fileName);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await fileInfo.file.CopyToAsync(stream);
+                            }
+
+                            finalPath = $"uploads/{fileName}";
+                        }
+                        // Case 2: Existing path available (no new upload)
+                        else if (!string.IsNullOrWhiteSpace(fileInfo.existingPath))
+                        {
+                            finalPath = fileInfo.existingPath;
                         }
 
-                        customerDocs.Add(new TblCustomerDoc
+                        // Add to DB only if we have a path
+                        if (!string.IsNullOrWhiteSpace(finalPath))
                         {
-                            CustomerId = cust.CustomerId,
-                            DocumentTypeId = docType.DocumentTypeId,
-                            DocumentDescription = docType.DocumentName,
-                            DocumentPath = $"uploads/{fileName}",
-                            IsValid = true,
-                            CreatedDateTime = DateTime.Now
-                        });
+                            customerDocs.Add(new TblCustomerDoc
+                            {
+                                CustomerId = cust.CustomerId,
+                                DocumentTypeId = docType.DocumentTypeId,
+                                DocumentDescription = docType.DocumentName,
+                                DocumentPath = finalPath,
+                                IsValid = true,
+                                CreatedDateTime = DateTime.Now
+                            });
+                        }
                     }
                 }
 
@@ -352,6 +417,7 @@ namespace OIF.Cams.Data.Repository.Lead
                         InvoiceNo = a.InvoiceNo,
                         TradeLicensePath = b.TradeLicensePath,
                         VATCertificatePath = b.VatCertificatePath,
+                        CustomerID = Convert.ToInt32(a.CustomerId),
 
 
                         ContactPersons = _context.TblContactPeople
@@ -369,6 +435,37 @@ namespace OIF.Cams.Data.Repository.Lead
 
                     }
                 ).FirstOrDefaultAsync();
+
+                // Step 2: Fetch documents separately and assign
+                if (result != null)
+                {
+                    var customerDocs = await (
+                        from doc in _context.TblCustomerDocs.AsNoTracking()
+                        join type in _context.TblmstdocumentTypes.AsNoTracking()
+                            on doc.DocumentTypeId equals type.DocumentTypeId
+                        where doc.CustomerId == result.CustomerID  // or any valid ID
+                        select new
+                        {
+                            type.DocumentName,
+                            doc.DocumentPath
+                        }).ToListAsync();
+
+                    string GetDocPath(string name) => customerDocs.FirstOrDefault(d => d.DocumentName == name)?.DocumentPath;
+
+                    result.MOAPath = GetDocPath("Memorandum of Association (MOA)");
+                    //result.TenancyContractPath = GetDocPath("Tenancy");
+                    result.TenancyContractPath = GetDocPath("Tenancy Contract");
+                    result.ShareCertificatePath = GetDocPath("Share Certificate");
+                    //result.CertificateOfIncorporationPath = GetDocPath("Certificate of Incorporation");
+                    result.CertificateOfIncorporationPath = GetDocPath("Certificate of Incorporation / Certificate of Formation");
+                    result.KYCPath = GetDocPath("KYC");
+                    result.PassportFrontPath = GetDocPath("Passport Front");
+                    result.PassportBackPath = GetDocPath("Passport Back");
+                    result.EmiratesIDFrontPath = GetDocPath("EmiratesID Front");
+                    result.EmiratesIDBackPath = GetDocPath("EmiratesID Back");
+                    result.BankStatementPath = GetDocPath("Bank Statement");
+                }
+
 
                 return result;
             }
@@ -396,6 +493,7 @@ namespace OIF.Cams.Data.Repository.Lead
                                          select new
                                          {
                                              a.ProductRefNo,
+                                             a.Risk,
                                              a.LeadType,
                                              b.CompanyName,
                                              b.TradeLicenseNo,
@@ -422,12 +520,39 @@ namespace OIF.Cams.Data.Repository.Lead
                                              e.Designation,
                                              e.Email,
                                              e.Dob,
+                                             b.CustomerId,
+                                             a.LeadId,
+                                           
 
                                              a.CreatedBy
                                          }).FirstOrDefaultAsync();
 
                     if (rawData != null)
                     {
+                        // Get documents separately for this customer
+                        var customerDocuments = await _context.TblCustomerDocs
+                                                .Where(doc => doc.CustomerId == rawData.CustomerId && doc.IsValid)
+                                                .Select(doc => new LeadDetailModel.CustomerDocumentsModel
+                                                {
+                                                    DocumentType = doc.DocumentDescription,
+                                                    Description = doc.DocumentDescription,
+                                                    FilePath = doc.DocumentPath // add this property in AdditionalDocumentModel (string FilePath)
+                                                })
+                                                .ToListAsync();
+
+                        // Get Leads doc/Additional/Risk Based documents separately
+                        var AdditionalDocuments = await (from doc in _context.TblLeadDocuments
+                                                         join docType in _context.TblmstdocumentTypes
+                                                         on doc.DocumentTypeId equals docType.DocumentTypeId
+                                                         where doc.CustomerId == rawData.CustomerId &&
+                                                               doc.LeadId == rawData.LeadId && doc.IsValid
+                                                         select new LeadDetailModel.AdditionalDocumentModel
+                                                         {
+                                                             DocumentType = docType.DocumentName, // this is what you asked for
+                                                             Description = doc.DocumentDescription,
+                                                             FilePath = doc.DocumentPath
+                                                         }).ToListAsync();
+
                         leadData = new LeadDetailModel
                         {
                             ProductRefNo = rawData.ProductRefNo,
@@ -456,7 +581,11 @@ namespace OIF.Cams.Data.Repository.Lead
                             PrimaryContactPersonMobile = rawData.Mobile,
                             PrimaryContactPersonDesignation = rawData.Designation,
                             PrimaryContactPersonEmail = rawData.Email,
-                            PrimaryContactPersonDOB = rawData.Dob.HasValue ? rawData.Dob.Value : DateOnly.MinValue
+                            Risk = rawData.Risk,
+                            PrimaryContactPersonDOB = rawData.Dob.HasValue ? rawData.Dob.Value : DateOnly.MinValue,
+                            CustomerDoc = customerDocuments,
+                            AdditionalDocuments = AdditionalDocuments
+
                         };
                     }
                 }

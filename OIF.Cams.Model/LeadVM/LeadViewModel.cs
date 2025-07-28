@@ -10,6 +10,7 @@ namespace OIF.Cams.Model.LeadVM
     public class LeadViewModel
     {
         public string Product { get; set; }
+        public long CustomerID { get; set; }
         public IFormFile TradeLicense { get; set; }
         public IFormFile VATCertificate { get; set; }
         public string CompanyName { get; set; }
@@ -116,6 +117,18 @@ namespace OIF.Cams.Model.LeadVM
         public string currentUser { get; set; }
         public string activeUserRole { get; set; }
 
+        //Customer Docments
+        public string MOAPath { get; set; }
+        public string TenancyContractPath { get; set; }
+        public string ShareCertificatePath { get; set; }
+        public string CertificateOfIncorporationPath { get; set; }
+        public string KYCPath { get; set; }
+        public string PassportFrontPath { get; set; }
+        public string PassportBackPath { get; set; }
+        public string EmiratesIDFrontPath { get; set; }
+        public string EmiratesIDBackPath { get; set; }
+        public string BankStatementPath { get; set; }
+
 
         public List<string> AvailableBanks { get; set; } = new List<string>
     {
@@ -138,10 +151,19 @@ namespace OIF.Cams.Model.LeadVM
         {
             public string DocumentType { get; set; }
             public string Description { get; set; }
+            public string FilePath { get; set; }
             public IFormFile File { get; set; }
         }
 
-        
+        public List<CustomerDocumentsModel> CustomerDoc { get; set; } = new List<CustomerDocumentsModel>();
+        public class CustomerDocumentsModel
+        {
+            public string DocumentType { get; set; }
+            public string Description { get; set; }
+            public string FilePath { get; set; }
+            public IFormFile File { get; set; }
+        }
+
 
     }
 

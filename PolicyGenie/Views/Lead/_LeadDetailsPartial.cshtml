@@ -69,6 +69,103 @@
         </div>
     </div>
 
+@* 
+    <hr/>
+    <h5>Customer Documents</h5>
+    <div class="row">
+        @if (Model.AdditionalDocuments != null && Model.AdditionalDocuments.Any())
+        {
+            foreach (var doc in Model.AdditionalDocuments)
+            {
+                <div class="col-md-6 mb-2">
+                    <label>@doc.DocumentType</label><br />
+                    <a href="@Url.Action("DownloadDocument", "Lead", new { filePath = doc.FilePath })" class="btn btn-link" target="_blank">View Document</a>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No documents uploaded.</p>
+        }
+    </div> *@
+    
+    <div>
+    <hr />
+    <h5>Customer Documents</h5>
+    @if (Model.CustomerDoc != null && Model.CustomerDoc.Any())
+    {
+        <div class="row">
+            @foreach (var doc in Model.CustomerDoc)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="me-3">
+                                <!-- You can replace with a document icon or file type icon -->
+                                <i class="bi bi-file-earmark-text" style="font-size: 2rem; color:#0d6efd;"></i>
+                            </div>
+                            <div>
+                                <h6 class="card-title mb-1">@doc.DocumentType</h6>
+                                <a href="@Url.Action("DownloadDocument", "Lead", new { filePath = doc.FilePath })"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View Document
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted fst-italic">No documents uploaded.</p>
+    }
+    </div>
+
+    <div>
+    <hr />
+    <h5>Additional/Risk Based Documents</h5>
+    @if (Model.AdditionalDocuments != null && Model.AdditionalDocuments.Any())
+    {
+        <div class="row">
+            @foreach (var doc in Model.AdditionalDocuments)
+            {
+                <div class="col-md-4 mb-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body d-flex align-items-center">
+                            <div class="me-3">
+                                <!-- You can replace with a document icon or file type icon -->
+                                <i class="bi bi-file-earmark-text" style="font-size: 2rem; color:#0d6efd;"></i>
+                            </div>
+                            <div>
+                                    @if (!string.IsNullOrEmpty(doc.Description))
+                                    {
+                                        <h6 class="card-title mb-1">@doc.Description</h6>
+                                    }
+                                    else
+                                    {
+                                        <h6 class="card-title mb-1 text-muted fst-italic">@doc.DocumentType</h6>
+                                    }
+                                <a href="@Url.Action("DownloadDocument", "Lead", new { filePath = doc.FilePath })"
+                                   target="_blank"
+                                   class="btn btn-sm btn-outline-primary">
+                                    View Document
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted fst-italic">No documents uploaded.</p>
+    }
+    </div>
+
     <!-- Section: Subject Matter Details -->
     <hr />
     <h5>Subject Matter Details</h5>
@@ -157,7 +254,7 @@
             <label>Trade License Expiry Date</label>
             <input type="date" name="TradeLicenseExpDate" value="@Model.TradeLicenseExpDate.ToString("yyyy-MM-dd")" class="form-control" readonly />
         </div>
-        <div class="col-md-6 mb-2">
+@*         <div class="col-md-6 mb-2">
             <label>Trade License Document</label>
             @if (!string.IsNullOrEmpty(Model.TradeLicensePath))
             {
@@ -168,7 +265,7 @@
             {
                 <p class="form-text text-muted">No document uploaded</p>
             }
-        </div>
+        </div> *@
     </div>
 
     <!-- Section: VAT Details -->
@@ -179,7 +276,7 @@
             <label>VAT TRN No</label>
             <input type="text" name="VATTrnNo" value="@Model.VATTrnNo" class="form-control" readonly />
         </div>
-        <div class="col-md-6 mb-2">
+@*         <div class="col-md-6 mb-2">
             <label>VAT Certificate</label>
             @if (!string.IsNullOrEmpty(Model.VATCertificatePath))
             {
@@ -190,13 +287,15 @@
             {
                 <p class="form-text text-muted">No certificate uploaded</p>
             }
-        </div>
+        </div> *@
     </div>
 
 
-
-
-    <h5 class="mt-4">Risk-Based Additional Documents</h5>
+    @* Only show the Risk-Based Additional Documents section if not admin *@
+@if (!isAdmin)
+    {
+        <div>
+            <h5 class="mt-4">Risk-Based Additional Documents</h5>
     <table class="table table-bordered" id="docTable">
         <thead>
             <tr>
@@ -212,8 +311,8 @@
     </table>
 
     <button type="button" class="btn btn-sm btn-primary" onclick="addDocRow()">+ Add Document</button>
-
-
+    </div>
+    }
 
 
 
@@ -240,6 +339,7 @@
 </form>
 
 <script>
+
     $(document).ready(function () {
         const leadSource = $("#LeadSource").val().toLowerCase();
 

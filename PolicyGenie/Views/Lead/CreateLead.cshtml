@@ -158,19 +158,10 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
                     <div class="col-12 col-md-6">
                         <label>Upload VAT Certificate @* <span class="text-danger">*</span> *@</label>
-                        <input type="file" name="VATCertificate" class="form-control">
+                        <input type="file" name="VATCertificate" class="form-control" id="uploadVATInput">
+                        <input type="hidden" name="VATCertificatePath" id="VATCertificatePathHidden" />
                         <a id="vatCertificateDownload" href="#" target="_blank" class="btn btn-sm btn-outline-success d-none mb-2">
                             <i class="bi bi-download"></i> Download VAT Certificate
                         </a>
@@ -211,7 +202,7 @@
                                     <input type="text" name="ContactPersons[0].Name" class="form-control" placeholder="Name" required>
                                 </div>
                                 <div class="col-md-3">
-                                    <input type="text" name="ContactPersons[0].Mobile" class="form-control" placeholder="Mobile" required>
+                                    <input type="text" name="ContactPersons[0].Mobile" class="form-control" placeholder="Mobile" maxlength="10" pattern="\d{10}" title="Enter 10-digit mobile number" required>
                                 </div>
                                 <div class="col-md-3">
                                     <input type="text" name="ContactPersons[0].Email" class="form-control" placeholder="Email" required>
@@ -332,7 +323,7 @@
                              <input type="text" class="form-control" placeholder="Name" required>
                          </div>
                          <div class="col-md-3">
-                             <input type="text" class="form-control" placeholder="Mobile" required>
+                             <input type="text" class="form-control" placeholder="Mobile"  required>
                          </div>
                          <div class="col-md-3">
                              <input type="text" class="form-control" placeholder="Email" required>
@@ -341,7 +332,8 @@
                              <input type="text" class="form-control" placeholder="Designation">
                          </div>
                          <div class="col-md-3">
-                                      <input type="date" class="form-control dob-field" max="${today}" placeholder="DOB">
+                         <label class="form-label">DOB:</label>
+                           <input type="date" class="form-control dob-field" max="${today}" placeholder="DOB">
                          </div>
 
                          <div class="col-md-1 d-flex">
@@ -506,7 +498,6 @@
                          }
 
                          updateContactPersonRows();
-
                          if (lead.contactPersons && lead.contactPersons.length > 0) {
                              lead.contactPersons.forEach((cp, index) => {
                                  const nameInput = document.querySelector(`[name="ContactPersons[${index}].Name"]`);
@@ -549,11 +540,146 @@
             tradeLicenseInput.setAttribute("required", "required");
         }
 
+
+                // MOA
+        const moaLink = document.getElementById("moaDownload");
+        const moaInput = document.getElementById("moaInput");
+        if (lead.moaPath) {
+            moaLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.moaPath)}`;
+            moaLink.classList.remove("d-none");
+            document.getElementById("moaPathHidden").value = lead.moaPath;
+            moaInput.removeAttribute("required");
+        } else {
+            moaLink.classList.add("d-none");
+            moaInput.setAttribute("required", "required");
+        }
+
+        // Tenancy Contract
+        const tenancyContractLink = document.getElementById("tenancyContractDownload");
+        const tenancyContractInput = document.getElementById("tenancyContractInput");
+        if (lead.tenancyContractPath) {
+            tenancyContractLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.tenancyContractPath)}`;
+            tenancyContractLink.classList.remove("d-none");
+            document.getElementById("tenancyContractPathHidden").value = lead.tenancyContractPath;
+            tenancyContractInput.removeAttribute("required");
+        } else {
+            tenancyContractLink.classList.add("d-none");
+            tenancyContractInput.setAttribute("required", "required");
+        }
+
+        // Share Certificate
+        const shareCertificateLink = document.getElementById("shareCertificateDownload");
+        const shareCertificateInput = document.getElementById("shareCertificateInput");
+        if (lead.shareCertificatePath) {
+            shareCertificateLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.shareCertificatePath)}`;
+            shareCertificateLink.classList.remove("d-none");
+            document.getElementById("shareCertificatePathHidden").value = lead.shareCertificatePath;
+            shareCertificateInput.removeAttribute("required");
+        } else {
+            shareCertificateLink.classList.add("d-none");
+            shareCertificateInput.setAttribute("required", "required");
+        }
+
+        // Certificate of Incorporation
+        const coiLink = document.getElementById("certificateOfIncorporationDownload");
+        const coiInput = document.getElementById("certificateOfIncorporationInput");
+        if (lead.certificateOfIncorporationPath) {
+            coiLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.certificateOfIncorporationPath)}`;
+            coiLink.classList.remove("d-none");
+            document.getElementById("certificateOfIncorporationPathHidden").value = lead.certificateOfIncorporationPath;
+            coiInput.removeAttribute("required");
+        } else {
+            coiLink.classList.add("d-none");
+            coiInput.setAttribute("required", "required");
+        }
+
+        // KYC
+        const kycLink = document.getElementById("kycDownload");
+        const kycInput = document.getElementById("kycInput");
+        if (lead.kycPath) {
+            kycLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.kycPath)}`;
+            kycLink.classList.remove("d-none");
+            document.getElementById("kycPathHidden").value = lead.kycPath;
+            kycInput.removeAttribute("required");
+        } else {
+            kycLink.classList.add("d-none");
+            kycInput.setAttribute("required", "required");
+        }
+
+        // Passport Front
+        const passportFrontLink = document.getElementById("passportFrontDownload");
+        const passportFrontInput = document.getElementById("passportFrontInput");
+        if (lead.passportFrontPath) {
+            passportFrontLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.passportFrontPath)}`;
+            passportFrontLink.classList.remove("d-none");
+            document.getElementById("passportFrontPathHidden").value = lead.passportFrontPath;
+            passportFrontInput.removeAttribute("required");
+        } else {
+            passportFrontLink.classList.add("d-none");
+            passportFrontInput.setAttribute("required", "required");
+        }
+
+        // Passport Back
+        const passportBackLink = document.getElementById("passportBackDownload");
+        const passportBackInput = document.getElementById("passportBackInput");
+        if (lead.passportBackPath) {
+            passportBackLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.passportBackPath)}`;
+            passportBackLink.classList.remove("d-none");
+            document.getElementById("passportBackPathHidden").value = lead.passportBackPath;
+            passportBackInput.removeAttribute("required");
+        } else {
+            passportBackLink.classList.add("d-none");
+            passportBackInput.setAttribute("required", "required");
+        }
+
+        // Emirates ID Front
+        const eidFrontLink = document.getElementById("emiratesIDFrontDownload");
+        const eidFrontInput = document.getElementById("emiratesIDFrontInput");
+        if (lead.emiratesIDFrontPath) {
+            eidFrontLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.emiratesIDFrontPath)}`;
+            eidFrontLink.classList.remove("d-none");
+            document.getElementById("emiratesIDFrontPathHidden").value = lead.emiratesIDFrontPath;
+            eidFrontInput.removeAttribute("required");
+        } else {
+            eidFrontLink.classList.add("d-none");
+            eidFrontInput.setAttribute("required", "required");
+        }
+
+        // Emirates ID Back
+        const eidBackLink = document.getElementById("emiratesIDBackDownload");
+        const eidBackInput = document.getElementById("emiratesIDBackInput");
+        if (lead.emiratesIDBackPath) {
+            eidBackLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.emiratesIDBackPath)}`;
+            eidBackLink.classList.remove("d-none");
+            document.getElementById("emiratesIDBackPathHidden").value = lead.emiratesIDBackPath;
+            eidBackInput.removeAttribute("required");
+        } else {
+            eidBackLink.classList.add("d-none");
+            eidBackInput.setAttribute("required", "required");
+        }
+
+        // Bank Statement
+        const bankStatementLink = document.getElementById("bankStatementDownload");
+        const bankStatementInput = document.getElementById("bankStatementInput");
+        if (lead.bankStatementPath) {
+            bankStatementLink.href = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.bankStatementPath)}`;
+            bankStatementLink.classList.remove("d-none");
+            document.getElementById("bankStatementPathHidden").value = lead.bankStatementPath;
+            bankStatementInput.removeAttribute("required");
+        } else {
+            bankStatementLink.classList.add("d-none");
+            bankStatementInput.setAttribute("required", "required");
+        }
+
+
+
                               // Step 6: Handle VAT Certificate file download (if exists)
                               const vatCertificateLink = document.getElementById("vatCertificateDownload");
+                              //const VATCertificatetInput = document.getElementById("uploadVATInput");
                               if (lead.vatCertificatePath) {
                                   const downloadUrl = `/Lead/DownloadDocument?filePath=${encodeURIComponent(lead.vatCertificatePath)}`;
                                   vatCertificateLink.href = downloadUrl;
+                                   document.getElementById("VATCertificatePathHidden").value = lead.vatCertificatePath;
                                   vatCertificateLink.classList.remove("d-none");
                               } else {
                                   vatCertificateLink.classList.add("d-none");
@@ -581,13 +707,41 @@
                                  }
                              });
                          });
-                                 function clearDownloadLinks() {
-                             const tradeLink = document.getElementById("tradeLicenseDownload");
-                             const vatLink = document.getElementById("vatCertificateDownload");
 
-                             if (tradeLink) tradeLink.classList.add("d-none");
-                             if (vatLink) vatLink.classList.add("d-none");
-                         }
+                         // function clearDownloadLinks() {
+                         //     const tradeLink = document.getElementById("tradeLicenseDownload");
+                         //     const vatLink = document.getElementById("vatCertificateDownload");
+
+                         //     if (tradeLink) tradeLink.classList.add("d-none");
+                         //     if (vatLink) vatLink.classList.add("d-none");
+                         // }
+
+            function clearDownloadLinks() {
+            const docTypes = [
+                "tradeLicense",
+                "vatCertificate",
+                "moa",
+                "tenancyContract",
+                "shareCertificate",
+                "certificateOfIncorporation",
+                "kyc",
+                "passportFront",
+                "passportBack",
+                "emiratesIDFront",
+                "emiratesIDBack",
+                "bankStatement"
+            ];
+
+            docTypes.forEach(type => {
+                const downloadLink = document.getElementById(`${type}Download`);
+                const hiddenInput = document.getElementById(`${type}PathHidden`);
+                const fileInput = document.getElementById(`${type}Input`);
+
+                if (downloadLink) downloadLink.classList.add("d-none");
+                if (hiddenInput) hiddenInput.value = "";
+                if (fileInput) fileInput.setAttribute("required", "required");
+            });
+        }
 
                          function clearContactPersonFields() {
                              const container = document.getElementById('contactPersonContainer');
@@ -611,6 +765,7 @@
                  <input type="text" name="ContactPersons[0].Designation" class="form-control" placeholder="Designation">
                  </div>
                  <div class="col-md-3">
+                 <label class="form-label">DOB:</label>
                  <input type="date" name="ContactPersons[0].ContactPersonDOB" class="form-control " placeholder="DOB">
                  </div>
                  <div class="col-md-1 d-flex">
